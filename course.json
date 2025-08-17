@@ -1,0 +1,19 @@
+{
+  "author": {
+    "name": "Amr Soliman",
+    "company": "thisisamr"
+  },
+  "title": "Complete intro to Spring and Spring boot",
+  "subtitle": "code skool",
+  "frontendMastersLink": "thisisamr.site",
+  "social": {
+    "linkedin": "thisisamr",
+    "github": "thisisamr",
+    "twitter": "asolyma2",
+    "bluesky": "thisisamr.bsky.social"
+  },
+  "description": "",
+  "keywords": ["java", "spring", "spring boot", "enterprise"],
+  "productionBaseUrl": "/complete-intro-to-spring-and-springboot",
+  "csvPath": "./out/lessons.csv"
+}

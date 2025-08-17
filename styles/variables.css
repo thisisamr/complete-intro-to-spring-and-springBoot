@@ -1,0 +1,73 @@
+:root {
+  --primary: #dfa067;
+  --secondary: #e5fffa;
+  --highlight: #224159;
+
+  --lesson-text: rgb(8, 8, 8);
+
+  --text-header: var(--primary);
+  --text-main-headers: var(--highlight);
+  --text-links: #007bff;
+  --text-footer: #333;
+
+  --bg-main: white;
+  --bg-dots: var(--highlight);
+  --bg-lesson: white;
+
+  --nav-buttons: var(--highlight);
+  --nav-buttons-text: white;
+  --nav-buttons-text-hover: white;
+
+  --corner-active: var(--highlight);
+  --corner-inactive: #f4f4f4;
+  --icons: var(--highlight);
+  --footer-icons: var(--highlight);
+
+  --emphasized-bg: #dce8ff;
+  --emphasized-border: #aab6d2;
+}
+
+[data-theme="dark"] {
+  --primary: #0f172a;
+  --secondary: #39af97;
+  --highlight: #ffffff;
+  --icons: #424449;
+
+  --text-header: var(--primary);
+  --text-main-headers: var(--highlight);
+  --text-links: #c5bcbc;
+  --text-footer: var(--highlight);
+
+  --lesson-text: rgb(218, 218, 218);
+
+  --bg-main: #1f1f1f;
+  --bg-dots: var(--highlight);
+  --bg-lesson: #323232;
+  --nav-buttons: var(--highlight);
+  --nav-buttons-text: var(--primary);
+  --nav-buttons-text-hover: var(--highlight);
+
+  --corner-active: var(--highlight);
+  --corner-inactive: #2a2a2a;
+  --icons: var(--icons);
+  --footer-icons: var(--highlight);
+
+  --emphasized-bg: #dce8ff;
+  --emphasized-border: #5a6c89;
+}
+
+.lesson-title {
+  color: var(--highlight);
+}
+
+.lesson-section-title {
+  color: var(--primary);
+}
+
+.terms {
+  color: var(--highlight);
+}
+
+li {
+  color: var(--highlight);
+}
