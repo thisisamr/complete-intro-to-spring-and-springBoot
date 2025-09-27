@@ -60,9 +60,9 @@
   color: var(--highlight);
 }
 
-.lesson-section-title {
-  color: var(--primary);
-}
+/* .lesson-section-title { */
+/*   color: var(--primary); */
+/* } */
 
 .terms {
   color: var(--highlight);
