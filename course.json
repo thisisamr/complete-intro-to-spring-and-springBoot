@@ -14,6 +14,6 @@
   },
   "description": "",
   "keywords": ["java", "spring", "spring boot", "enterprise"],
-  "productionBaseUrl": "/complete-intro-to-spring-and-springboot",
+  "productionBaseUrl": "/complete-intro-to-spring-and-springBoot",
   "csvPath": "./out/lessons.csv"
 }
