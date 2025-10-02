@@ -7,7 +7,7 @@ This course will be using **Java 24**.
 
 ---
 
-## **1. Setting Up Your Development Environment**
+## 1. Setting Up Your Development Environment
 
 To write and run Java code, you need two main components:
 
@@ -19,11 +19,10 @@ To write and run Java code, you need two main components:
 ### **A. Installing the JDK**
 
 1. Download a **Java 24-compatible JDK** from:
-   - [Oracle](https://www.oracle.com/java/technologies/javase/jdk24-archive-downloads.html)
-   - or [Adoptium](https://adoptium.net/) for OpenJDK.
+   [OpenJdk](https://openjdk.org/) for OpenJDK.
 
 2. Choose the correct installer for your operating system (Windows, macOS, Linux).
-3. Run the installer and follow the setup instructions.
+   3.Follow the setup instructions.
 
 ---
 
@@ -37,7 +36,7 @@ We’ll use **IntelliJ IDEA Community Edition** (free) for this course.
 
 ---
 
-## **2. Anatomy of a Java Program**
+## 2. Anatomy of a Java Program
 
 A simple Java program has a specific structure. Here’s an example:
 
@@ -60,7 +59,7 @@ public class HelloWorld {
 - **`public static void main(String[] args)`**
   The **entry point** of a Java program.
   - `public` → accessible from anywhere.
-  - `static` → belongs to the class, not an instance.
+  - `static` → belongs to the class, not an instance which allows the method to be called without creating an object of the class (the JVM needs to call it directly).
   - `void` → doesn’t return a value.
   - `main` → special method name that JVM looks for.
   - `(String[] args)` → accepts command-line arguments as an array of strings.
@@ -70,7 +69,7 @@ public class HelloWorld {
 
 ---
 
-## **3. Writing Your First Program**
+## 3. Writing Your First Program
 
 1. Open IntelliJ IDEA and create a **new project**.
 2. Create a new Java class named `HelloWorld`.
@@ -95,7 +94,7 @@ Hello, World!
 
 ---
 
-## **4. How Java Code Runs**
+## 4. How Java Code Runs
 
 Java is **both compiled and interpreted**:
 
@@ -109,7 +108,7 @@ Java is **both compiled and interpreted**:
 
 ---
 
-## **5. Fun Facts About Java**
+## 5. Fun Facts About Java
 
 - **Creator:** James Gosling at Sun Microsystems, mid-1990s.
 - **Original Name:** _Oak_ (after a tree outside Gosling’s office).
@@ -119,13 +118,11 @@ Java is **both compiled and interpreted**:
 
 ---
 
-## **6. Course Structure**
+## 6. Course Structure
 
 This course will take you from **beginner** to **intermediate** Java developer in three parts:
 
----
-
-### **Part 1: Fundamentals**
+### Part 1: Fundamentals
 
 - The Java Type System
 - Building a Small Project
@@ -134,9 +131,7 @@ This course will take you from **beginner** to **intermediate** Java developer i
 - Debugging
 - Packaging Your Code
 
----
-
-### **Part 2: Object-Oriented Programming (OOP)**
+### Part 2: Object-Oriented Programming (OOP)
 
 - Classes & Objects
 - Inheritance
@@ -144,16 +139,14 @@ This course will take you from **beginner** to **intermediate** Java developer i
 - Abstraction
 - Encapsulation
 
----
-
-### **Part 3: Advanced Concepts**
+### Part 3: Advanced Concepts
 
 - Functional Programming in Java
 - Multithreading
-- Database Access
+- ExecutorService
 
----
+### Part 4: Async java
+
+- CompletableFuture
 
 ✅ By the end of this course, you’ll be confident in writing Java programs, understanding how they work, and applying best practices.
-
----
