@@ -1,0 +1,10 @@
+order,sectionTitle,lessonTitle,slug,sectionIcon,filePath,description
+00A,A Quick Refresher,Set Up,A quick Refresher/Set up,rotate,/lessons/A quick Refresher/Set up,""
+00B,A Quick Refresher,Java Fundamentals,A quick Refresher/Java Fundamentals,rotate,/lessons/A quick Refresher/Java Fundamentals,""
+00C,A Quick Refresher,Oop,A quick Refresher/Oop,rotate,/lessons/A quick Refresher/Oop,""
+00D,A Quick Refresher,Advanced Java,A quick Refresher/Advanced java,rotate,/lessons/A quick Refresher/Advanced java,""
+00E,A Quick Refresher,Functional Programming,A quick Refresher/Functional programming,rotate,/lessons/A quick Refresher/Functional programming,""
+00F,A Quick Refresher,Threads and Concurrent Programming,A quick Refresher/Threads and concurrent Programming,rotate,/lessons/A quick Refresher/Threads and concurrent Programming,""
+00G,A Quick Refresher,Async Java,A quick Refresher/Async java,rotate,/lessons/A quick Refresher/Async java,""
+01A,Introduction,Introduction,Introduction/intro,dumpster-fire,/lessons/Introduction/intro,The introduction to this course.
+01B,Introduction,Fundamentals,Introduction/Fundamentals,dumpster-fire,/lessons/Introduction/Fundamentals,""

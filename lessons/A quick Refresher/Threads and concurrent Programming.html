@@ -1,0 +1,509 @@
+<!DOCTYPE html><html><head><meta charSet="utf-8" data-next-head=""/><meta name="viewport" content="width=device-width" data-next-head=""/><link rel="apple-touch-icon" sizes="180x180" href="/complete-intro-to-spring-and-springBoot/images/apple-touch-icon.png" data-next-head=""/><link rel="icon" type="image/png" sizes="32x32" href="/complete-intro-to-spring-and-springBoot/images/favicon-32x32.png" data-next-head=""/><link rel="icon" type="image/png" sizes="16x16" href="/complete-intro-to-spring-and-springBoot/images/favicon-16x16.png" data-next-head=""/><link rel="icon" type="image/png" sizes="16x16" href="/complete-intro-to-spring-and-springBoot/images/favicon-16x16.png" data-next-head=""/><link rel="icon" type="image/x-icon" href="/complete-intro-to-spring-and-springBoot/images/favicon.ico" data-next-head=""/><title data-next-head="">Threads and Concurrent Programming – Complete intro to Spring and Spring boot</title><meta name="description" content="" data-next-head=""/><meta name="keywords" content="java,spring,spring boot,enterprise" data-next-head=""/><meta name="og:description" content="" data-next-head=""/><meta name="og:title" content="Threads and Concurrent Programming – Complete intro to Spring and Spring boot" data-next-head=""/><meta name="og:image" content="/complete-intro-to-spring-and-springBoot/images/social-share-cover.jpg" data-next-head=""/><meta name="twitter:card" content="summary_large_image" data-next-head=""/><link data-next-font="size-adjust" rel="preconnect" href="/" crossorigin="anonymous"/><link rel="preload" href="/complete-intro-to-spring-and-springBoot/_next/static/css/a177a108a1e5ef8e.css" as="style"/><link rel="stylesheet" href="/complete-intro-to-spring-and-springBoot/_next/static/css/a177a108a1e5ef8e.css" data-n-g=""/><noscript data-n-css=""></noscript><script defer="" noModule="" src="/complete-intro-to-spring-and-springBoot/_next/static/chunks/polyfills-42372ed130431b0a.js"></script><script src="/complete-intro-to-spring-and-springBoot/_next/static/chunks/webpack-ef71630eba064876.js" defer=""></script><script src="/complete-intro-to-spring-and-springBoot/_next/static/chunks/framework-2f335d22a7318891.js" defer=""></script><script src="/complete-intro-to-spring-and-springBoot/_next/static/chunks/main-68b275a1c1cc8358.js" defer=""></script><script src="/complete-intro-to-spring-and-springBoot/_next/static/chunks/pages/_app-f402e663bac92a23.js" defer=""></script><script src="/complete-intro-to-spring-and-springBoot/_next/static/chunks/pages/lessons/%5Bsection%5D/%5Bslug%5D-76fa85589bbed6c1.js" defer=""></script><script src="/complete-intro-to-spring-and-springBoot/_next/static/xTwxhuCtUf2QTtgk5CpXn/_buildManifest.js" defer=""></script><script src="/complete-intro-to-spring-and-springBoot/_next/static/xTwxhuCtUf2QTtgk5CpXn/_ssgManifest.js" defer=""></script></head><body><div id="__next"><div class="remix-app"><header class="navbar"><h1 class="navbar-brand"><a href="/complete-intro-to-spring-and-springBoot">Complete intro to Spring and Spring boot</a></h1><div class="navbar-info"><a href="https://www.youtube.com/@thisis3mr" class="cta-btn">Watch on youtube</a></div></header><div class="content-container"><div class="main"><div class="lesson-container"><div class="lesson"><div class="lesson-content"><h1><strong>Concurrency in Java</strong></h1>
+<p>Concurrency is one of the most important and tricky topics in Java.
+It allows programs to perform multiple tasks at the same time, but introduces problems like <strong>race conditions</strong>, <strong>visibility issues</strong>, and <strong>deadlocks</strong> if not handled carefully.</p>
+<hr>
+<h2>1. Processes, Threads, and the JVM</h2>
+<ul>
+<li><strong>Process</strong> = an instance of a running program.</li>
+<li><strong>Thread</strong> = a lightweight unit of execution inside a process.</li>
+<li>Every Java program <strong>starts with the main thread</strong>.</li>
+<li>JVM also runs background threads (like garbage collector).</li>
+</ul>
+<p>👉 To create new threads in Java:</p>
+<pre><code class="hljs language-java"><span class="hljs-type">Thread</span> <span class="hljs-variable">t</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt; {
+    System.out.println(<span class="hljs-string">&quot;Hello from a new thread!&quot;</span>);
+});
+t.start();
+</code></pre><hr>
+<h2>2. Thread Lifecycle and APIs</h2>
+<p>Important methods:</p>
+<ul>
+<li><code>start()</code> → begins execution in a new thread.</li>
+<li><code>sleep(ms)</code> → pauses <strong>current thread</strong>.</li>
+<li><code>join()</code> → waits for another thread to finish.</li>
+<li><code>interrupt()</code> + <code>isInterrupted()</code> → cooperative thread termination.</li>
+<li><code>setDaemon(true)</code> → makes a background thread (JVM won’t wait for it).</li>
+</ul>
+<h3>Example:</h3>
+<pre><code class="hljs language-java"><span class="hljs-type">Thread</span> <span class="hljs-variable">worker</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt; {
+    <span class="hljs-keyword">try</span> {
+        Thread.sleep(<span class="hljs-number">3000</span>);
+        System.out.println(<span class="hljs-string">&quot;Work done!&quot;</span>);
+    } <span class="hljs-keyword">catch</span> (InterruptedException e) {
+        System.out.println(<span class="hljs-string">&quot;Interrupted!&quot;</span>);
+    }
+});
+
+<span class="hljs-comment">// Non-daemon (JVM waits)</span>
+worker.start();
+
+<span class="hljs-comment">// Main waits explicitly</span>
+worker.join();
+</code></pre><hr>
+<h2>3. JVM Exit Behavior</h2>
+<ul>
+<li>JVM <strong>keeps running</strong> if there’s any <strong>non-daemon thread</strong> alive.</li>
+<li>JVM <strong>can exit immediately</strong> if only <strong>daemon threads</strong> remain.</li>
+<li>Use <code>join()</code> when you want explicit waiting.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Non-Daemon (default)</th>
+<th>Daemon</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>JVM waits?</td>
+<td>✅ Yes</td>
+<td>❌ No</td>
+</tr>
+<tr>
+<td>Example</td>
+<td>Worker threads</td>
+<td>Logging, GC</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>4. Concurrency Problems</h2>
+<h3>4.1 Race Conditions</h3>
+<p>A <strong>race condition</strong> happens when multiple threads access and modify shared data simultaneously.</p>
+<p>Example:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Counter</span> {
+    <span class="hljs-type">int</span> <span class="hljs-variable">count</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">increment</span><span class="hljs-params">()</span> { count++; }
+}
+</code></pre><p>If multiple threads call <code>increment()</code>, final result is unpredictable.</p>
+<hr>
+<h3>4.2 Fixing Race Conditions</h3>
+<p><strong>Techniques:</strong></p>
+<ol>
+<li><strong>Confinement</strong> → keep data thread-local.</li>
+<li><strong>Synchronization</strong> → locks, <code>synchronized</code>.</li>
+<li><strong>Atomic classes</strong> → <code>AtomicInteger</code>, <code>AtomicBoolean</code>, etc.</li>
+<li><strong>Immutable objects</strong> → safe by design.</li>
+</ol>
+<hr>
+<h2>5. Locks and Synchronization</h2>
+<h3>5.1 Using <code>synchronized</code></h3>
+<pre><code class="hljs language-java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Counter</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> <span class="hljs-variable">count</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">increment</span><span class="hljs-params">()</span> {
+        count++;
+    }
+}
+</code></pre><h3>5.2 Using Explicit Locks</h3>
+<pre><code class="hljs language-java"><span class="hljs-keyword">import</span> java.util.concurrent.locks.Lock;
+<span class="hljs-keyword">import</span> java.util.concurrent.locks.ReentrantLock;
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Counter</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> <span class="hljs-variable">count</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">Lock</span> <span class="hljs-variable">lock</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ReentrantLock</span>();
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">increment</span><span class="hljs-params">()</span> {
+        lock.lock();
+        <span class="hljs-keyword">try</span> { count++; }
+        <span class="hljs-keyword">finally</span> { lock.unlock(); }
+    }
+}
+</code></pre><hr>
+<h2>6. Volatile and Visibility</h2>
+<p>Threads can cache variables locally, leading to <strong>visibility issues</strong>.</p>
+<ul>
+<li>Without <code>volatile</code>, one thread may not see another’s changes.</li>
+<li>With <code>volatile</code>, all reads/writes go to <strong>main memory</strong>.</li>
+</ul>
+<p>Example:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Flag</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">volatile</span> <span class="hljs-type">boolean</span> <span class="hljs-variable">done</span> <span class="hljs-operator">=</span> <span class="hljs-literal">false</span>;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">work</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">while</span> (!done) { } <span class="hljs-comment">// busy wait</span>
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">stop</span><span class="hljs-params">()</span> {
+        done = <span class="hljs-literal">true</span>;
+    }
+}
+</code></pre><p>⚠️ Note: <code>volatile</code> ensures <strong>visibility</strong>, but not <strong>atomicity</strong>.
+<code>x++</code> is still unsafe, even if <code>x</code> is volatile.</p>
+<hr>
+<h2>7. Atomic Classes</h2>
+<p>Java provides classes in <code>java.util.concurrent.atomic</code> that ensure atomic updates:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">import</span> java.util.concurrent.atomic.AtomicInteger;
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">AtomicCounter</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-type">AtomicInteger</span> <span class="hljs-variable">count</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">AtomicInteger</span>();
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">increment</span><span class="hljs-params">()</span> {
+        count.incrementAndGet();
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">get</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> count.get();
+    }
+}
+</code></pre><p>✔ Uses CPU-level instructions (<code>Compare-And-Swap</code>) to guarantee atomicity without locks.</p>
+<hr>
+<h2>8. Thread Communication: <code>wait()</code> and <code>notify()</code></h2>
+<p>Sometimes threads need to communicate.</p>
+<ul>
+<li><code>wait()</code> → makes a thread pause until notified.</li>
+<li><code>notify()</code> → wakes one waiting thread.</li>
+<li><code>notifyAll()</code> → wakes all waiting threads.</li>
+</ul>
+<p>⚠️ Must be used inside a <code>synchronized</code> block.</p>
+<p>Example:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">DownloadStatus</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-type">boolean</span> <span class="hljs-variable">done</span> <span class="hljs-operator">=</span> <span class="hljs-literal">false</span>;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">waitUntilDone</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> InterruptedException {
+        <span class="hljs-keyword">while</span> (!done) {
+            wait(); <span class="hljs-comment">// releases lock, waits</span>
+        }
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">markDone</span><span class="hljs-params">()</span> {
+        done = <span class="hljs-literal">true</span>;
+        notifyAll(); <span class="hljs-comment">// wakes waiting threads</span>
+    }
+}
+</code></pre><hr>
+<h2>9. Collections in Concurrency</h2>
+<ul>
+<li><code>Collections.synchronizedList()</code> → wraps a list with locks.</li>
+<li><code>ConcurrentHashMap</code>, <code>CopyOnWriteArrayList</code> → designed for concurrency, faster than synchronized wrappers.</li>
+</ul>
+<p>Example:</p>
+<pre><code class="hljs language-java"><span class="hljs-type">var</span> <span class="hljs-variable">list</span> <span class="hljs-operator">=</span> Collections.synchronizedList(<span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;());
+list.add(<span class="hljs-number">1</span>);
+</code></pre><hr>
+<h2>10. Executor Framework (Modern Approach)</h2>
+<p>Instead of managing threads manually:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">import</span> java.util.concurrent.*;
+
+<span class="hljs-type">ExecutorService</span> <span class="hljs-variable">executor</span> <span class="hljs-operator">=</span> Executors.newFixedThreadPool(<span class="hljs-number">4</span>);
+
+executor.submit(() -&gt; {
+    System.out.println(<span class="hljs-string">&quot;Task running&quot;</span>);
+});
+
+executor.shutdown();
+</code></pre><hr>
+<h1>✅ Key Takeaways</h1>
+<ol>
+<li><p><strong>Thread basics</strong>: <code>start()</code>, <code>sleep()</code>, <code>join()</code>, <code>interrupt()</code>.</p>
+</li>
+<li><p><strong>Daemon vs non-daemon</strong>: JVM exit depends on them.</p>
+</li>
+<li><p><strong>Concurrency problems</strong>: Race conditions, visibility.</p>
+</li>
+<li><p><strong>Solutions</strong>:</p>
+<ul>
+<li>Confinement</li>
+<li>Synchronization</li>
+<li>Locks</li>
+<li>Atomic classes</li>
+<li>Immutability</li>
+</ul>
+</li>
+<li><p><strong>Visibility problem</strong> solved by <code>volatile</code>.</p>
+</li>
+<li><p><strong>Thread coordination</strong>: <code>wait()</code> / <code>notify()</code>.</p>
+</li>
+<li><p><strong>Use concurrent collections</strong> instead of manual sync.</p>
+</li>
+<li><p>For real apps → prefer <strong>Executors</strong> over manual <code>Thread</code>.</p>
+</li>
+</ol>
+<!-- # **Executors, Thread Pools, and Futures in Java** -->
+<!---->
+<!-- ## 1. Why Executors? -->
+<!---->
+<!-- Working directly with threads (`new Thread(...)`) is: -->
+<!---->
+<!-- - **Error-prone** (manual start/stop, synchronization issues). -->
+<!-- - **Expensive** (creating a new thread for every task costs memory and CPU). -->
+<!-- - **Hard to scale** (what if you need to run hundreds of small tasks?). -->
+<!---->
+<!-- 👉 To solve this, Java 5 introduced the **Executor Framework** to manage threads for us. -->
+<!---->
+<!-- --- -->
+<!---->
+<!-- ## 2. Thread Pools -->
+<!---->
+<!-- Instead of creating threads manually, we can use a **pool**: -->
+<!---->
+<!-- - A pool is a group of worker threads. -->
+<!-- - When a task finishes, the thread returns to the pool and can be reused. -->
+<!-- - Benefits: efficiency + no resource exhaustion. -->
+<!---->
+<!-- In Java, thread pools are represented by **`ExecutorService`**, with common implementations like: -->
+<!---->
+<!-- - `ThreadPoolExecutor` -->
+<!-- - `ScheduledThreadPoolExecutor` -->
+<!-- - `ForkJoinPool` -->
+<!---->
+<!-- --- -->
+<!---->
+<!-- ## 3. Example: Using Executors -->
+<!---->
+<!-- ### Blocking version (with try-with-resources) -->
+<!---->
+<!-- ```java -->
+<!-- public static void show() { -->
+<!--     // Java 21+: ExecutorService implements AutoCloseable -->
+<!--     try (var pool = Executors.newFixedThreadPool(2)) { -->
+<!--         pool.submit(() -> { -->
+<!--             delay(); -->
+<!--             System.out.println(Thread.currentThread().getName()); -->
+<!--         }); -->
+<!--         System.out.println("hello"); -->
+<!--     } // <-- pool.close() waits for tasks to finish -->
+<!-- } -->
+<!-- ``` -->
+<!---->
+<!-- 🔎 **What happens here?** -->
+<!---->
+<!-- - `"hello"` prints immediately. -->
+<!-- - The submitted task runs on a worker thread. -->
+<!-- - When the `try` block ends, `pool.close()` is called, which **blocks** until tasks finish. -->
+<!---->
+<!-- That’s why `"this is blocking"` only shows _after_ the task completes. -->
+<!---->
+<!-- --- -->
+<!---->
+<!-- ### Non-blocking version (manual shutdown) -->
+<!---->
+<!-- ```java -->
+<!-- public static ExecutorService show2() { -->
+<!--     var pool = Executors.newFixedThreadPool(2); -->
+<!--     pool.submit(() -> { -->
+<!--         delay(); -->
+<!--         System.out.println(Thread.currentThread().getName()); -->
+<!--     }); -->
+<!--     System.out.println("hello"); -->
+<!--     return pool; // caller can decide when to shut it down -->
+<!-- } -->
+<!-- ``` -->
+<!---->
+<!-- Here: -->
+<!---->
+<!-- - `"hello"` prints immediately. -->
+<!-- - Program doesn’t block unless you later call `pool.shutdown()`. -->
+<!---->
+<!-- --- -->
+<!---->
+<!-- ## 4. Callable and Future -->
+<!---->
+<!-- Sometimes, we don’t just want to run tasks—we want a **result**. -->
+<!---->
+<!-- - `Runnable`: no result, just side effects. -->
+<!-- - `Callable<T>`: returns a value of type `T`. -->
+<!---->
+<!-- When we submit a `Callable`, we get back a **`Future<T>`** object. -->
+<!---->
+<!-- ```java -->
+<!-- public static Future<Integer> show3() { -->
+<!--     try (var pool = Executors.newFixedThreadPool(2)) { -->
+<!--         return pool.submit(() -> { -->
+<!--             delay(); -->
+<!--             return 25; -->
+<!--         }); -->
+<!--     } -->
+<!-- } -->
+<!-- ``` -->
+<!---->
+<!-- ### Getting the result -->
+<!---->
+<!-- ```java -->
+<!-- var result = show3(); -->
+<!-- try { -->
+<!--     var value = result.get(); // blocks until task is finished -->
+<!--     System.out.println(value); -->
+<!-- } catch (InterruptedException | ExecutionException e) { -->
+<!--     throw new RuntimeException(e); -->
+<!-- } -->
+<!-- ``` -->
+<!---->
+<!-- ⚠️ `.get()` **blocks** the main thread until the task finishes. -->
+<!---->
+<!-- --- -->
+<!---->
+<!-- ## 5. Asynchronous Programming with `CompletableFuture` -->
+<!---->
+<!-- Futures are powerful but clunky (they only give you `.get()`). -->
+<!-- Java 8 introduced **`CompletableFuture`**, which lets you: -->
+<!---->
+<!-- - Run async tasks without blocking. -->
+<!-- - Chain multiple tasks (`thenApply`, `thenAccept`). -->
+<!-- - Handle errors. -->
+<!---->
+<!-- Example: -->
+<!---->
+<!-- ```java -->
+<!-- CompletableFuture.runAsync(() -> { -->
+<!--     delay(); -->
+<!--     System.out.println(Thread.currentThread().getName()); -->
+<!-- }); -->
+<!-- System.out.println("hello"); // prints immediately -->
+<!-- ``` -->
+<!---->
+<!-- --- -->
+<!---->
+<!-- ## 6. Summary -->
+<!---->
+<!-- - **Executors** = abstraction over threads. -->
+<!-- - **Thread pools** = efficient reuse of threads. -->
+<!-- - **Runnable** = no result, **Callable** = returns result. -->
+<!-- - **Future** = placeholder for a result (but blocks). -->
+<!-- - **CompletableFuture** = modern async style with chaining. -->
+<!---->
+<!-- --- -->
+<!---->
+<!-- ## ✅ Takeaway for students -->
+<!---->
+<!-- 1. Use **Executors** instead of raw threads. -->
+<!-- 2. Use **Callable + Future** when you need results. -->
+<!-- 3. Use **CompletableFuture** for non-blocking async programming. -->
+<!-- 4. Remember: -->
+<!--    - `ExecutorService.close()` blocks until tasks finish (Java 21+). -->
+<!--    - `.get()` on a `Future` blocks too. -->
+<!---->
+
+<h1><strong>ExecutorService</strong></h1>
+<!-- ## Table of Contents -->
+<!---->
+<!-- 1. [Introduction](#introduction) -->
+<!-- 2. [Thread Pools and ExecutorService](#thread-pools-and-executorservice) -->
+<!-- 3. [Callable and Future Interfaces](#callable-and-future-interfaces) -->
+<!-- 4. [Understanding Concurrency vs Parallelism vs Asynchronous](#understanding-concurrency-vs-parallelism-vs-asynchronous) -->
+<!-- 5. [CompletableFuture: Modern Asynchronous Programming](#completablefuture-modern-asynchronous-programming) -->
+<!-- 6. [Chaining Operations](#chaining-operations) -->
+<!-- 7. [Combining Futures](#combining-futures) -->
+<!-- 8. [Error Handling](#error-handling) -->
+<!-- 9. [Advanced Patterns](#advanced-patterns) -->
+<!-- 10. [Best Practices](#best-practices) -->
+
+<h2>Introduction</h2>
+<p>Working with threads directly in Java is difficult and error-prone. Java 5 introduced the <strong>Executor Framework</strong> to abstract away the complexity of thread management. This lesson covers:</p>
+<ul>
+<li>Thread pools and ExecutorService</li>
+<li>Callable and Future interfaces</li>
+<li>Asynchronous programming with CompletableFuture</li>
+<li>Modern patterns for concurrent programming</li>
+</ul>
+<h2>Thread Pools and ExecutorService</h2>
+<h3>The Problem with Direct Thread Usage</h3>
+<p>Creating threads directly has two major issues:</p>
+<ol>
+<li><strong>Cost</strong>: Creating and destroying threads is expensive</li>
+<li><strong>Availability</strong>: System resources are limited</li>
+</ol>
+<h3>Solution: Thread Pools</h3>
+<p>A thread pool is a collection of worker threads. When a worker thread finishes its task, it returns to the pool to execute other tasks instead of being destroyed.</p>
+<h3>ExecutorService Basics</h3>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ExecutorDemo</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> {
+        <span class="hljs-comment">// Basic executor usage</span>
+        show();
+
+        <span class="hljs-comment">// Non-blocking example</span>
+        <span class="hljs-type">var</span> <span class="hljs-variable">exec</span> <span class="hljs-operator">=</span> show2();
+        System.out.println(<span class="hljs-string">&quot;this runs immediately&quot;</span>);
+        exec.shutdown();
+
+        <span class="hljs-comment">// Working with return values</span>
+        <span class="hljs-type">var</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> show3();
+        <span class="hljs-keyword">try</span> {
+            <span class="hljs-type">var</span> <span class="hljs-variable">value</span> <span class="hljs-operator">=</span> result.get();
+            System.out.println(value);
+        } <span class="hljs-keyword">catch</span> (InterruptedException | ExecutionException e) {
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(e);
+        }
+    }
+
+    <span class="hljs-comment">// Blocking example with try-with-resources</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">show</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">try</span> (<span class="hljs-type">var</span> <span class="hljs-variable">pool</span> <span class="hljs-operator">=</span> Executors.newFixedThreadPool(<span class="hljs-number">2</span>)) {
+            pool.submit(() -&gt; {
+                delay();
+                System.out.println(Thread.currentThread().getName());
+            });
+            System.out.println(<span class="hljs-string">&quot;hello&quot;</span>);
+        } <span class="hljs-comment">// pool.close() blocks until all tasks complete</span>
+    }
+
+    <span class="hljs-comment">// Non-blocking example</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> ExecutorService <span class="hljs-title function_">show2</span><span class="hljs-params">()</span> {
+        <span class="hljs-type">var</span> <span class="hljs-variable">pool</span> <span class="hljs-operator">=</span> Executors.newFixedThreadPool(<span class="hljs-number">2</span>);
+        pool.submit(() -&gt; {
+            delay();
+            System.out.println(Thread.currentThread().getName());
+        });
+        System.out.println(<span class="hljs-string">&quot;hello&quot;</span>); <span class="hljs-comment">// Prints immediately</span>
+        <span class="hljs-keyword">return</span> pool; <span class="hljs-comment">// Must manually shutdown later</span>
+    }
+
+    <span class="hljs-comment">// Returning values with Future</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Future&lt;Integer&gt; <span class="hljs-title function_">show3</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">try</span> (<span class="hljs-type">var</span> <span class="hljs-variable">pool</span> <span class="hljs-operator">=</span> Executors.newFixedThreadPool(<span class="hljs-number">2</span>)) {
+            <span class="hljs-keyword">return</span> pool.submit(() -&gt; {
+                delay();
+                <span class="hljs-keyword">return</span> <span class="hljs-number">25</span>;
+            });
+        }
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">delay</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">try</span> {
+            Thread.sleep(Duration.ofSeconds(<span class="hljs-number">2</span>));
+        } <span class="hljs-keyword">catch</span> (InterruptedException e) {
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(e);
+        }
+    }
+}
+</code></pre><h3>Key ExecutorService Implementations</h3>
+<ol>
+<li><strong>ThreadPoolExecutor</strong>: General-purpose thread pool</li>
+<li><strong>ScheduledThreadPoolExecutor</strong>: For scheduled tasks</li>
+<li><strong>ForkJoinPool</strong>: For divide-and-conquer algorithms</li>
+</ol>
+<h3>Important Note About try-with-resources</h3>
+<p>When using <code>try-with-resources</code> with ExecutorService:</p>
+<ul>
+<li>The <code>close()</code> method calls <code>shutdown()</code> and <strong>blocks</strong> until all submitted tasks finish</li>
+<li>This can make your code appear synchronous even though tasks run on separate threads</li>
+<li>For truly non-blocking behavior, manage the executor lifecycle manually</li>
+</ul>
+<h2>Callable and Future Interfaces</h2>
+<h3>Moving Beyond Runnable</h3>
+<p>While <code>Runnable</code> is great for fire-and-forget tasks, often you need to:</p>
+<ul>
+<li>Return a value from your task</li>
+<li>Handle exceptions properly</li>
+<li>Check if the task is complete</li>
+</ul>
+<h3>Callable Interface</h3>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ThreadPoolExample</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> {
+        <span class="hljs-keyword">try</span> (<span class="hljs-type">var</span> <span class="hljs-variable">exec</span> <span class="hljs-operator">=</span> Executors.newFixedThreadPool(<span class="hljs-number">2</span>)) {
+            <span class="hljs-comment">// Submit a Callable that returns a value</span>
+            <span class="hljs-type">var</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> exec.submit(() -&gt; {
+                System.out.println(Thread.currentThread().getName());
+                LongTask.simulate();
+                <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>; <span class="hljs-comment">// Return value</span>
+            });
+
+            <span class="hljs-keyword">try</span> {
+                <span class="hljs-comment">// get() is a BLOCKING call</span>
+                <span class="hljs-type">var</span> <span class="hljs-variable">res</span> <span class="hljs-operator">=</span> result.get();
+                System.out.println(res);
+            } <span class="hljs-keyword">catch</span> (InterruptedException | ExecutionException e) {
+                <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(e);
+            }
+        }
+    }
+}
+</code></pre></div><div class="lesson-links"><a href="/complete-intro-to-spring-and-springBoot/lessons/A quick Refresher/Functional programming" class="prev">← Previous</a><a href="/complete-intro-to-spring-and-springBoot/lessons/A quick Refresher/Async java" class="next">Next →</a></div></div><div class="details-bg"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="154" height="154" viewBox="0 0 154 154"><defs><clipPath id="clip-path"><rect id="Rectangle_2238" data-name="Rectangle 2238" width="154" height="154" transform="translate(9467 350)" fill="#fff" stroke="#707070" stroke-width="1"></rect></clipPath><clipPath id="clip-corner-image-active"><rect width="154" height="154"></rect></clipPath></defs><g id="corner-image-active" clip-path="url(#clip-corner-image-active)"><g id="Corner-image-active-2" data-name="Corner-image-active" transform="translate(-9467 -350)" clip-path="url(#clip-path)"><path id="Subtraction_34" data-name="Subtraction 34" d="M-3857.365,1740.766h0l-7.07-7.07,12.89-12.89v14.142l-5.818,5.818Zm-14.142-14.142h0l-7.071-7.07,27.033-27.033v14.143l-19.96,19.96Zm-14.143-14.143h0l-7.07-7.069,41.175-41.175v14.142Zm-14.142-14.142h0l-7.07-7.069,55.317-55.317v14.142Zm-14.142-14.142h0l-7.07-7.069,69.459-69.459v14.142Zm-14.142-14.142h0l-7.07-7.069,76.739-76.739h6.862v7.28Zm-14.143-14.143h0l-7.07-7.069,62.6-62.6h14.142Zm-14.142-14.142h0l-7.07-7.069,48.454-48.454h14.142Zm-14.142-14.142h0l-7.07-7.069,34.312-34.312h14.142Zm-14.142-14.142h0l-7.07-7.069,20.17-20.17h14.142Zm-14.142-14.142h0l-7.071-7.071,6.027-6.027h14.144l-13.1,13.1Zm367.24-56.114v-.909l.455.455-.453.453Z" transform="translate(13472.546 -1236.766)" fill="var(--corner-fill)"></path></g></g></svg></div></div></div></div><footer class="footer"><ul class="socials"><li class="social"><a href="https://twitter.com/asolyma2"><svg fill="none" height="100%" width="32" xmlns="http://www.w3.org/2000/svg" viewBox="0.254 0.25 500 451.95400000000006"><path d="M394.033.25h76.67L303.202 191.693l197.052 260.511h-154.29L225.118 294.205 86.844 452.204H10.127l179.16-204.77L.254.25H158.46l109.234 144.417zm-26.908 406.063h42.483L135.377 43.73h-45.59z" fill="var(--footer-icons)"></path></svg></a></li><li class="social"><a href="https://bsky.app/profile/thisisamr.bsky.social"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -3.268 64 68.414" width="38" height="100%"><path fill="var(--footer-icons)" d="M13.873 3.805C21.21 9.332 29.103 20.537 32 26.55v15.882c0-.338-.13.044-.41.867-1.512 4.456-7.418 21.847-20.923 7.944-7.111-7.32-3.819-14.64 9.125-16.85-7.405 1.264-15.73-.825-18.014-9.015C1.12 23.022 0 8.51 0 6.55 0-3.268 8.579-.182 13.873 3.805zm36.254 0C42.79 9.332 34.897 20.537 32 26.55v15.882c0-.338.13.044.41.867 1.512 4.456 7.418 21.847 20.923 7.944 7.111-7.32 3.819-14.64-9.125-16.85 7.405 1.264 15.73-.825 18.014-9.015C62.88 23.022 64 8.51 64 6.55c0-9.818-8.578-6.732-13.873-2.745z"></path></svg></a></li><li class="social"><a href="https://github.com/thisisamr"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="32" height="32" viewBox="0 0 32 32"><defs><clipPath id="clip-github-social"><rect width="32" height="32"></rect></clipPath></defs><g id="github-social" clip-path="url(#clip-github-social)"><g id="Group_272" data-name="Group 272" transform="translate(13522.5 -6994)"><path id="Subtraction_33" data-name="Subtraction 33" d="M-24967.5,8041a15.9,15.9,0,0,1-11.312-4.688A15.893,15.893,0,0,1-24983.5,8025a15.893,15.893,0,0,1,4.689-11.315A15.894,15.894,0,0,1-24967.5,8009a15.894,15.894,0,0,1,11.313,4.686A15.893,15.893,0,0,1-24951.5,8025a15.893,15.893,0,0,1-4.689,11.313A15.9,15.9,0,0,1-24967.5,8041Zm-3.781-4.571h0v3.918h7.895v-6.665a1.836,1.836,0,0,0-1.2-1.718c5.1-.617,7.467-2.975,7.467-7.424a7.176,7.176,0,0,0-1.637-4.728,6.74,6.74,0,0,0,.275-1.812,4.34,4.34,0,0,0-.52-2.452.574.574,0,0,0-.359-.1c-1.061,0-3.465,1.411-3.936,1.694a16.644,16.644,0,0,0-4.2-.489,16.379,16.379,0,0,0-3.969.445c-.846-.5-2.91-1.649-3.859-1.649a.566.566,0,0,0-.354.095,4.3,4.3,0,0,0-.521,2.452,6.7,6.7,0,0,0,.244,1.718,7.346,7.346,0,0,0-1.6,4.822,7.263,7.263,0,0,0,1.533,4.985c1.193,1.359,3.115,2.165,5.871,2.464a1.826,1.826,0,0,0-1.129,1.693v.5h0l-.006,0a7.121,7.121,0,0,1-2.033.363,2.608,2.608,0,0,1-.965-.158,4.438,4.438,0,0,1-1.836-1.881,2.361,2.361,0,0,0-1.248-1.091,3.472,3.472,0,0,0-1.217-.3.584.584,0,0,0-.545.224.282.282,0,0,0,.027.367,1.875,1.875,0,0,0,.447.307,4.732,4.732,0,0,1,.561.355,10.726,10.726,0,0,1,1.682,2.755c.043.092.078.163.105.217a3.876,3.876,0,0,0,2.42,1.185,6.036,6.036,0,0,0,.607.025c.875,0,1.988-.124,2-.125Z" transform="translate(11461 -1015)" fill="var(--footer-icons)"></path><g id="Ellipse_670" data-name="Ellipse 670" transform="translate(-13522.5 6994)" fill="none" stroke="var(--footer-icons)" stroke-width="1"><circle cx="16" cy="16" r="16" stroke="none"></circle><circle cx="16" cy="16" r="15.5" fill="none"></circle></g></g></g></svg></a></li><li class="social"><a href="https://linkedin.com/in/thisisamr"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="32" height="32" viewBox="0 0 32 32"><defs><clipPath id="clip-linkedin-social"><rect width="32" height="32"></rect></clipPath></defs><g id="linkedin-social" clip-path="url(#clip-linkedin-social)"><g id="Group_270" data-name="Group 270" transform="translate(-86.349 -633.073)"><path id="Path_375" data-name="Path 375" d="M115.789,633.073a2.324,2.324,0,0,1,1.682.676,2.194,2.194,0,0,1,.695,1.627V662.8a2.131,2.131,0,0,1-.695,1.609,2.314,2.314,0,0,1-1.646.659H88.69a2.307,2.307,0,0,1-1.646-.659,2.128,2.128,0,0,1-.695-1.609V635.376a2.19,2.19,0,0,1,.695-1.627,2.322,2.322,0,0,1,1.682-.676h27.063Zm-20.224,9.672a2.561,2.561,0,0,0,0-3.584,2.658,2.658,0,0,0-1.938-.712,2.724,2.724,0,0,0-1.957.712,2.371,2.371,0,0,0-.75,1.792,2.4,2.4,0,0,0,.731,1.792,2.605,2.605,0,0,0,1.9.713h.037A2.7,2.7,0,0,0,95.565,642.745ZM96,645.434H91.213V659.88H96Zm17.3,6.144a7.007,7.007,0,0,0-1.573-4.9,5.68,5.68,0,0,0-6.839-.769,5.663,5.663,0,0,0-1.426,1.573v-2.048H98.674q.036.841,0,7.717v6.728h4.791V651.8a3.592,3.592,0,0,1,.146-1.17,2.913,2.913,0,0,1,.878-1.206,2.429,2.429,0,0,1,1.609-.549,2.108,2.108,0,0,1,1.865.914,4.265,4.265,0,0,1,.549,2.341v7.752H113.3Z" fill="var(--footer-icons)"></path></g></g></svg></a></li><li class="social"><div class="terms"><p>Content Licensed Under CC-BY-NC-4.0</p><p>Code Samples and Exercises Licensed Under Apache 2.0</p><p>inspired by Btholt Course starter kit<!-- --> <a href="https://github.com/btholt/next-course-starter">Brian Holt</a></p></div></li></ul><div class="theme-icons"><button aria-label="Activate dark mode" title="Activate dark mode" class="theme-toggle"><svg xmlns="http://www.w3.org/2000/svg" width="36px" height="100%" viewBox="0 -960 960 960" fill="var(--text-footer)" role="img"><title>Dark Mode Icon</title><path d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q14 0 27.5 1t26.5 3q-41 29-65.5 75.5T444-660q0 90 63 153t153 63q55 0 101-24.5t75-65.5q2 13 3 26.5t1 27.5q0 150-105 255T480-120Zm0-80q88 0 158-48.5T740-375q-20 5-40 8t-40 3q-123 0-209.5-86.5T364-660q0-20 3-40t8-40q-78 32-126.5 102T200-480q0 116 82 198t198 82Z"></path></svg></button></div></footer></div></div><script id="__NEXT_DATA__" type="application/json">{"props":{"pageProps":{"post":{"attributes":{},"html":"\u003ch1\u003e\u003cstrong\u003eConcurrency in Java\u003c/strong\u003e\u003c/h1\u003e\n\u003cp\u003eConcurrency is one of the most important and tricky topics in Java.\nIt allows programs to perform multiple tasks at the same time, but introduces problems like \u003cstrong\u003erace conditions\u003c/strong\u003e, \u003cstrong\u003evisibility issues\u003c/strong\u003e, and \u003cstrong\u003edeadlocks\u003c/strong\u003e if not handled carefully.\u003c/p\u003e\n\u003chr\u003e\n\u003ch2\u003e1. Processes, Threads, and the JVM\u003c/h2\u003e\n\u003cul\u003e\n\u003cli\u003e\u003cstrong\u003eProcess\u003c/strong\u003e = an instance of a running program.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eThread\u003c/strong\u003e = a lightweight unit of execution inside a process.\u003c/li\u003e\n\u003cli\u003eEvery Java program \u003cstrong\u003estarts with the main thread\u003c/strong\u003e.\u003c/li\u003e\n\u003cli\u003eJVM also runs background threads (like garbage collector).\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp\u003e👉 To create new threads in Java:\u003c/p\u003e\n\u003cpre\u003e\u003ccode class=\"hljs language-java\"\u003e\u003cspan class=\"hljs-type\"\u003eThread\u003c/span\u003e \u003cspan class=\"hljs-variable\"\u003et\u003c/span\u003e \u003cspan class=\"hljs-operator\"\u003e=\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003enew\u003c/span\u003e \u003cspan class=\"hljs-title class_\"\u003eThread\u003c/span\u003e(() -\u0026gt; {\n    System.out.println(\u003cspan class=\"hljs-string\"\u003e\u0026quot;Hello from a new thread!\u0026quot;\u003c/span\u003e);\n});\nt.start();\n\u003c/code\u003e\u003c/pre\u003e\u003chr\u003e\n\u003ch2\u003e2. Thread Lifecycle and APIs\u003c/h2\u003e\n\u003cp\u003eImportant methods:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003e\u003ccode\u003estart()\u003c/code\u003e → begins execution in a new thread.\u003c/li\u003e\n\u003cli\u003e\u003ccode\u003esleep(ms)\u003c/code\u003e → pauses \u003cstrong\u003ecurrent thread\u003c/strong\u003e.\u003c/li\u003e\n\u003cli\u003e\u003ccode\u003ejoin()\u003c/code\u003e → waits for another thread to finish.\u003c/li\u003e\n\u003cli\u003e\u003ccode\u003einterrupt()\u003c/code\u003e + \u003ccode\u003eisInterrupted()\u003c/code\u003e → cooperative thread termination.\u003c/li\u003e\n\u003cli\u003e\u003ccode\u003esetDaemon(true)\u003c/code\u003e → makes a background thread (JVM won’t wait for it).\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch3\u003eExample:\u003c/h3\u003e\n\u003cpre\u003e\u003ccode class=\"hljs language-java\"\u003e\u003cspan class=\"hljs-type\"\u003eThread\u003c/span\u003e \u003cspan class=\"hljs-variable\"\u003eworker\u003c/span\u003e \u003cspan class=\"hljs-operator\"\u003e=\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003enew\u003c/span\u003e \u003cspan class=\"hljs-title class_\"\u003eThread\u003c/span\u003e(() -\u0026gt; {\n    \u003cspan class=\"hljs-keyword\"\u003etry\u003c/span\u003e {\n        Thread.sleep(\u003cspan class=\"hljs-number\"\u003e3000\u003c/span\u003e);\n        System.out.println(\u003cspan class=\"hljs-string\"\u003e\u0026quot;Work done!\u0026quot;\u003c/span\u003e);\n    } \u003cspan class=\"hljs-keyword\"\u003ecatch\u003c/span\u003e (InterruptedException e) {\n        System.out.println(\u003cspan class=\"hljs-string\"\u003e\u0026quot;Interrupted!\u0026quot;\u003c/span\u003e);\n    }\n});\n\n\u003cspan class=\"hljs-comment\"\u003e// Non-daemon (JVM waits)\u003c/span\u003e\nworker.start();\n\n\u003cspan class=\"hljs-comment\"\u003e// Main waits explicitly\u003c/span\u003e\nworker.join();\n\u003c/code\u003e\u003c/pre\u003e\u003chr\u003e\n\u003ch2\u003e3. JVM Exit Behavior\u003c/h2\u003e\n\u003cul\u003e\n\u003cli\u003eJVM \u003cstrong\u003ekeeps running\u003c/strong\u003e if there’s any \u003cstrong\u003enon-daemon thread\u003c/strong\u003e alive.\u003c/li\u003e\n\u003cli\u003eJVM \u003cstrong\u003ecan exit immediately\u003c/strong\u003e if only \u003cstrong\u003edaemon threads\u003c/strong\u003e remain.\u003c/li\u003e\n\u003cli\u003eUse \u003ccode\u003ejoin()\u003c/code\u003e when you want explicit waiting.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ctable\u003e\n\u003cthead\u003e\n\u003ctr\u003e\n\u003cth\u003eFeature\u003c/th\u003e\n\u003cth\u003eNon-Daemon (default)\u003c/th\u003e\n\u003cth\u003eDaemon\u003c/th\u003e\n\u003c/tr\u003e\n\u003c/thead\u003e\n\u003ctbody\u003e\u003ctr\u003e\n\u003ctd\u003eJVM waits?\u003c/td\u003e\n\u003ctd\u003e✅ Yes\u003c/td\u003e\n\u003ctd\u003e❌ No\u003c/td\u003e\n\u003c/tr\u003e\n\u003ctr\u003e\n\u003ctd\u003eExample\u003c/td\u003e\n\u003ctd\u003eWorker threads\u003c/td\u003e\n\u003ctd\u003eLogging, GC\u003c/td\u003e\n\u003c/tr\u003e\n\u003c/tbody\u003e\u003c/table\u003e\n\u003chr\u003e\n\u003ch2\u003e4. Concurrency Problems\u003c/h2\u003e\n\u003ch3\u003e4.1 Race Conditions\u003c/h3\u003e\n\u003cp\u003eA \u003cstrong\u003erace condition\u003c/strong\u003e happens when multiple threads access and modify shared data simultaneously.\u003c/p\u003e\n\u003cp\u003eExample:\u003c/p\u003e\n\u003cpre\u003e\u003ccode class=\"hljs language-java\"\u003e\u003cspan class=\"hljs-keyword\"\u003eclass\u003c/span\u003e \u003cspan class=\"hljs-title class_\"\u003eCounter\u003c/span\u003e {\n    \u003cspan class=\"hljs-type\"\u003eint\u003c/span\u003e \u003cspan class=\"hljs-variable\"\u003ecount\u003c/span\u003e \u003cspan class=\"hljs-operator\"\u003e=\u003c/span\u003e \u003cspan class=\"hljs-number\"\u003e0\u003c/span\u003e;\n    \u003cspan class=\"hljs-keyword\"\u003epublic\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003evoid\u003c/span\u003e \u003cspan class=\"hljs-title function_\"\u003eincrement\u003c/span\u003e\u003cspan class=\"hljs-params\"\u003e()\u003c/span\u003e { count++; }\n}\n\u003c/code\u003e\u003c/pre\u003e\u003cp\u003eIf multiple threads call \u003ccode\u003eincrement()\u003c/code\u003e, final result is unpredictable.\u003c/p\u003e\n\u003chr\u003e\n\u003ch3\u003e4.2 Fixing Race Conditions\u003c/h3\u003e\n\u003cp\u003e\u003cstrong\u003eTechniques:\u003c/strong\u003e\u003c/p\u003e\n\u003col\u003e\n\u003cli\u003e\u003cstrong\u003eConfinement\u003c/strong\u003e → keep data thread-local.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eSynchronization\u003c/strong\u003e → locks, \u003ccode\u003esynchronized\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eAtomic classes\u003c/strong\u003e → \u003ccode\u003eAtomicInteger\u003c/code\u003e, \u003ccode\u003eAtomicBoolean\u003c/code\u003e, etc.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eImmutable objects\u003c/strong\u003e → safe by design.\u003c/li\u003e\n\u003c/ol\u003e\n\u003chr\u003e\n\u003ch2\u003e5. Locks and Synchronization\u003c/h2\u003e\n\u003ch3\u003e5.1 Using \u003ccode\u003esynchronized\u003c/code\u003e\u003c/h3\u003e\n\u003cpre\u003e\u003ccode class=\"hljs language-java\"\u003e\u003cspan class=\"hljs-keyword\"\u003eclass\u003c/span\u003e \u003cspan class=\"hljs-title class_\"\u003eCounter\u003c/span\u003e {\n    \u003cspan class=\"hljs-keyword\"\u003eprivate\u003c/span\u003e \u003cspan class=\"hljs-type\"\u003eint\u003c/span\u003e \u003cspan class=\"hljs-variable\"\u003ecount\u003c/span\u003e \u003cspan class=\"hljs-operator\"\u003e=\u003c/span\u003e \u003cspan class=\"hljs-number\"\u003e0\u003c/span\u003e;\n    \u003cspan class=\"hljs-keyword\"\u003epublic\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003esynchronized\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003evoid\u003c/span\u003e \u003cspan class=\"hljs-title function_\"\u003eincrement\u003c/span\u003e\u003cspan class=\"hljs-params\"\u003e()\u003c/span\u003e {\n        count++;\n    }\n}\n\u003c/code\u003e\u003c/pre\u003e\u003ch3\u003e5.2 Using Explicit Locks\u003c/h3\u003e\n\u003cpre\u003e\u003ccode class=\"hljs language-java\"\u003e\u003cspan class=\"hljs-keyword\"\u003eimport\u003c/span\u003e java.util.concurrent.locks.Lock;\n\u003cspan class=\"hljs-keyword\"\u003eimport\u003c/span\u003e java.util.concurrent.locks.ReentrantLock;\n\n\u003cspan class=\"hljs-keyword\"\u003eclass\u003c/span\u003e \u003cspan class=\"hljs-title class_\"\u003eCounter\u003c/span\u003e {\n    \u003cspan class=\"hljs-keyword\"\u003eprivate\u003c/span\u003e \u003cspan class=\"hljs-type\"\u003eint\u003c/span\u003e \u003cspan class=\"hljs-variable\"\u003ecount\u003c/span\u003e \u003cspan class=\"hljs-operator\"\u003e=\u003c/span\u003e \u003cspan class=\"hljs-number\"\u003e0\u003c/span\u003e;\n    \u003cspan class=\"hljs-keyword\"\u003eprivate\u003c/span\u003e \u003cspan class=\"hljs-type\"\u003eLock\u003c/span\u003e \u003cspan class=\"hljs-variable\"\u003elock\u003c/span\u003e \u003cspan class=\"hljs-operator\"\u003e=\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003enew\u003c/span\u003e \u003cspan class=\"hljs-title class_\"\u003eReentrantLock\u003c/span\u003e();\n\n    \u003cspan class=\"hljs-keyword\"\u003epublic\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003evoid\u003c/span\u003e \u003cspan class=\"hljs-title function_\"\u003eincrement\u003c/span\u003e\u003cspan class=\"hljs-params\"\u003e()\u003c/span\u003e {\n        lock.lock();\n        \u003cspan class=\"hljs-keyword\"\u003etry\u003c/span\u003e { count++; }\n        \u003cspan class=\"hljs-keyword\"\u003efinally\u003c/span\u003e { lock.unlock(); }\n    }\n}\n\u003c/code\u003e\u003c/pre\u003e\u003chr\u003e\n\u003ch2\u003e6. Volatile and Visibility\u003c/h2\u003e\n\u003cp\u003eThreads can cache variables locally, leading to \u003cstrong\u003evisibility issues\u003c/strong\u003e.\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eWithout \u003ccode\u003evolatile\u003c/code\u003e, one thread may not see another’s changes.\u003c/li\u003e\n\u003cli\u003eWith \u003ccode\u003evolatile\u003c/code\u003e, all reads/writes go to \u003cstrong\u003emain memory\u003c/strong\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp\u003eExample:\u003c/p\u003e\n\u003cpre\u003e\u003ccode class=\"hljs language-java\"\u003e\u003cspan class=\"hljs-keyword\"\u003eclass\u003c/span\u003e \u003cspan class=\"hljs-title class_\"\u003eFlag\u003c/span\u003e {\n    \u003cspan class=\"hljs-keyword\"\u003eprivate\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003evolatile\u003c/span\u003e \u003cspan class=\"hljs-type\"\u003eboolean\u003c/span\u003e \u003cspan class=\"hljs-variable\"\u003edone\u003c/span\u003e \u003cspan class=\"hljs-operator\"\u003e=\u003c/span\u003e \u003cspan class=\"hljs-literal\"\u003efalse\u003c/span\u003e;\n\n    \u003cspan class=\"hljs-keyword\"\u003epublic\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003evoid\u003c/span\u003e \u003cspan class=\"hljs-title function_\"\u003ework\u003c/span\u003e\u003cspan class=\"hljs-params\"\u003e()\u003c/span\u003e {\n        \u003cspan class=\"hljs-keyword\"\u003ewhile\u003c/span\u003e (!done) { } \u003cspan class=\"hljs-comment\"\u003e// busy wait\u003c/span\u003e\n    }\n\n    \u003cspan class=\"hljs-keyword\"\u003epublic\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003evoid\u003c/span\u003e \u003cspan class=\"hljs-title function_\"\u003estop\u003c/span\u003e\u003cspan class=\"hljs-params\"\u003e()\u003c/span\u003e {\n        done = \u003cspan class=\"hljs-literal\"\u003etrue\u003c/span\u003e;\n    }\n}\n\u003c/code\u003e\u003c/pre\u003e\u003cp\u003e⚠️ Note: \u003ccode\u003evolatile\u003c/code\u003e ensures \u003cstrong\u003evisibility\u003c/strong\u003e, but not \u003cstrong\u003eatomicity\u003c/strong\u003e.\n\u003ccode\u003ex++\u003c/code\u003e is still unsafe, even if \u003ccode\u003ex\u003c/code\u003e is volatile.\u003c/p\u003e\n\u003chr\u003e\n\u003ch2\u003e7. Atomic Classes\u003c/h2\u003e\n\u003cp\u003eJava provides classes in \u003ccode\u003ejava.util.concurrent.atomic\u003c/code\u003e that ensure atomic updates:\u003c/p\u003e\n\u003cpre\u003e\u003ccode class=\"hljs language-java\"\u003e\u003cspan class=\"hljs-keyword\"\u003eimport\u003c/span\u003e java.util.concurrent.atomic.AtomicInteger;\n\n\u003cspan class=\"hljs-keyword\"\u003eclass\u003c/span\u003e \u003cspan class=\"hljs-title class_\"\u003eAtomicCounter\u003c/span\u003e {\n    \u003cspan class=\"hljs-keyword\"\u003eprivate\u003c/span\u003e \u003cspan class=\"hljs-type\"\u003eAtomicInteger\u003c/span\u003e \u003cspan class=\"hljs-variable\"\u003ecount\u003c/span\u003e \u003cspan class=\"hljs-operator\"\u003e=\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003enew\u003c/span\u003e \u003cspan class=\"hljs-title class_\"\u003eAtomicInteger\u003c/span\u003e();\n\n    \u003cspan class=\"hljs-keyword\"\u003epublic\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003evoid\u003c/span\u003e \u003cspan class=\"hljs-title function_\"\u003eincrement\u003c/span\u003e\u003cspan class=\"hljs-params\"\u003e()\u003c/span\u003e {\n        count.incrementAndGet();\n    }\n\n    \u003cspan class=\"hljs-keyword\"\u003epublic\u003c/span\u003e \u003cspan class=\"hljs-type\"\u003eint\u003c/span\u003e \u003cspan class=\"hljs-title function_\"\u003eget\u003c/span\u003e\u003cspan class=\"hljs-params\"\u003e()\u003c/span\u003e {\n        \u003cspan class=\"hljs-keyword\"\u003ereturn\u003c/span\u003e count.get();\n    }\n}\n\u003c/code\u003e\u003c/pre\u003e\u003cp\u003e✔ Uses CPU-level instructions (\u003ccode\u003eCompare-And-Swap\u003c/code\u003e) to guarantee atomicity without locks.\u003c/p\u003e\n\u003chr\u003e\n\u003ch2\u003e8. Thread Communication: \u003ccode\u003ewait()\u003c/code\u003e and \u003ccode\u003enotify()\u003c/code\u003e\u003c/h2\u003e\n\u003cp\u003eSometimes threads need to communicate.\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003e\u003ccode\u003ewait()\u003c/code\u003e → makes a thread pause until notified.\u003c/li\u003e\n\u003cli\u003e\u003ccode\u003enotify()\u003c/code\u003e → wakes one waiting thread.\u003c/li\u003e\n\u003cli\u003e\u003ccode\u003enotifyAll()\u003c/code\u003e → wakes all waiting threads.\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp\u003e⚠️ Must be used inside a \u003ccode\u003esynchronized\u003c/code\u003e block.\u003c/p\u003e\n\u003cp\u003eExample:\u003c/p\u003e\n\u003cpre\u003e\u003ccode class=\"hljs language-java\"\u003e\u003cspan class=\"hljs-keyword\"\u003eclass\u003c/span\u003e \u003cspan class=\"hljs-title class_\"\u003eDownloadStatus\u003c/span\u003e {\n    \u003cspan class=\"hljs-keyword\"\u003eprivate\u003c/span\u003e \u003cspan class=\"hljs-type\"\u003eboolean\u003c/span\u003e \u003cspan class=\"hljs-variable\"\u003edone\u003c/span\u003e \u003cspan class=\"hljs-operator\"\u003e=\u003c/span\u003e \u003cspan class=\"hljs-literal\"\u003efalse\u003c/span\u003e;\n\n    \u003cspan class=\"hljs-keyword\"\u003epublic\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003esynchronized\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003evoid\u003c/span\u003e \u003cspan class=\"hljs-title function_\"\u003ewaitUntilDone\u003c/span\u003e\u003cspan class=\"hljs-params\"\u003e()\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003ethrows\u003c/span\u003e InterruptedException {\n        \u003cspan class=\"hljs-keyword\"\u003ewhile\u003c/span\u003e (!done) {\n            wait(); \u003cspan class=\"hljs-comment\"\u003e// releases lock, waits\u003c/span\u003e\n        }\n    }\n\n    \u003cspan class=\"hljs-keyword\"\u003epublic\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003esynchronized\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003evoid\u003c/span\u003e \u003cspan class=\"hljs-title function_\"\u003emarkDone\u003c/span\u003e\u003cspan class=\"hljs-params\"\u003e()\u003c/span\u003e {\n        done = \u003cspan class=\"hljs-literal\"\u003etrue\u003c/span\u003e;\n        notifyAll(); \u003cspan class=\"hljs-comment\"\u003e// wakes waiting threads\u003c/span\u003e\n    }\n}\n\u003c/code\u003e\u003c/pre\u003e\u003chr\u003e\n\u003ch2\u003e9. Collections in Concurrency\u003c/h2\u003e\n\u003cul\u003e\n\u003cli\u003e\u003ccode\u003eCollections.synchronizedList()\u003c/code\u003e → wraps a list with locks.\u003c/li\u003e\n\u003cli\u003e\u003ccode\u003eConcurrentHashMap\u003c/code\u003e, \u003ccode\u003eCopyOnWriteArrayList\u003c/code\u003e → designed for concurrency, faster than synchronized wrappers.\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp\u003eExample:\u003c/p\u003e\n\u003cpre\u003e\u003ccode class=\"hljs language-java\"\u003e\u003cspan class=\"hljs-type\"\u003evar\u003c/span\u003e \u003cspan class=\"hljs-variable\"\u003elist\u003c/span\u003e \u003cspan class=\"hljs-operator\"\u003e=\u003c/span\u003e Collections.synchronizedList(\u003cspan class=\"hljs-keyword\"\u003enew\u003c/span\u003e \u003cspan class=\"hljs-title class_\"\u003eArrayList\u003c/span\u003e\u0026lt;\u0026gt;());\nlist.add(\u003cspan class=\"hljs-number\"\u003e1\u003c/span\u003e);\n\u003c/code\u003e\u003c/pre\u003e\u003chr\u003e\n\u003ch2\u003e10. Executor Framework (Modern Approach)\u003c/h2\u003e\n\u003cp\u003eInstead of managing threads manually:\u003c/p\u003e\n\u003cpre\u003e\u003ccode class=\"hljs language-java\"\u003e\u003cspan class=\"hljs-keyword\"\u003eimport\u003c/span\u003e java.util.concurrent.*;\n\n\u003cspan class=\"hljs-type\"\u003eExecutorService\u003c/span\u003e \u003cspan class=\"hljs-variable\"\u003eexecutor\u003c/span\u003e \u003cspan class=\"hljs-operator\"\u003e=\u003c/span\u003e Executors.newFixedThreadPool(\u003cspan class=\"hljs-number\"\u003e4\u003c/span\u003e);\n\nexecutor.submit(() -\u0026gt; {\n    System.out.println(\u003cspan class=\"hljs-string\"\u003e\u0026quot;Task running\u0026quot;\u003c/span\u003e);\n});\n\nexecutor.shutdown();\n\u003c/code\u003e\u003c/pre\u003e\u003chr\u003e\n\u003ch1\u003e✅ Key Takeaways\u003c/h1\u003e\n\u003col\u003e\n\u003cli\u003e\u003cp\u003e\u003cstrong\u003eThread basics\u003c/strong\u003e: \u003ccode\u003estart()\u003c/code\u003e, \u003ccode\u003esleep()\u003c/code\u003e, \u003ccode\u003ejoin()\u003c/code\u003e, \u003ccode\u003einterrupt()\u003c/code\u003e.\u003c/p\u003e\n\u003c/li\u003e\n\u003cli\u003e\u003cp\u003e\u003cstrong\u003eDaemon vs non-daemon\u003c/strong\u003e: JVM exit depends on them.\u003c/p\u003e\n\u003c/li\u003e\n\u003cli\u003e\u003cp\u003e\u003cstrong\u003eConcurrency problems\u003c/strong\u003e: Race conditions, visibility.\u003c/p\u003e\n\u003c/li\u003e\n\u003cli\u003e\u003cp\u003e\u003cstrong\u003eSolutions\u003c/strong\u003e:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eConfinement\u003c/li\u003e\n\u003cli\u003eSynchronization\u003c/li\u003e\n\u003cli\u003eLocks\u003c/li\u003e\n\u003cli\u003eAtomic classes\u003c/li\u003e\n\u003cli\u003eImmutability\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\u003cp\u003e\u003cstrong\u003eVisibility problem\u003c/strong\u003e solved by \u003ccode\u003evolatile\u003c/code\u003e.\u003c/p\u003e\n\u003c/li\u003e\n\u003cli\u003e\u003cp\u003e\u003cstrong\u003eThread coordination\u003c/strong\u003e: \u003ccode\u003ewait()\u003c/code\u003e / \u003ccode\u003enotify()\u003c/code\u003e.\u003c/p\u003e\n\u003c/li\u003e\n\u003cli\u003e\u003cp\u003e\u003cstrong\u003eUse concurrent collections\u003c/strong\u003e instead of manual sync.\u003c/p\u003e\n\u003c/li\u003e\n\u003cli\u003e\u003cp\u003eFor real apps → prefer \u003cstrong\u003eExecutors\u003c/strong\u003e over manual \u003ccode\u003eThread\u003c/code\u003e.\u003c/p\u003e\n\u003c/li\u003e\n\u003c/ol\u003e\n\u003c!-- # **Executors, Thread Pools, and Futures in Java** --\u003e\n\u003c!----\u003e\n\u003c!-- ## 1. Why Executors? --\u003e\n\u003c!----\u003e\n\u003c!-- Working directly with threads (`new Thread(...)`) is: --\u003e\n\u003c!----\u003e\n\u003c!-- - **Error-prone** (manual start/stop, synchronization issues). --\u003e\n\u003c!-- - **Expensive** (creating a new thread for every task costs memory and CPU). --\u003e\n\u003c!-- - **Hard to scale** (what if you need to run hundreds of small tasks?). --\u003e\n\u003c!----\u003e\n\u003c!-- 👉 To solve this, Java 5 introduced the **Executor Framework** to manage threads for us. --\u003e\n\u003c!----\u003e\n\u003c!-- --- --\u003e\n\u003c!----\u003e\n\u003c!-- ## 2. Thread Pools --\u003e\n\u003c!----\u003e\n\u003c!-- Instead of creating threads manually, we can use a **pool**: --\u003e\n\u003c!----\u003e\n\u003c!-- - A pool is a group of worker threads. --\u003e\n\u003c!-- - When a task finishes, the thread returns to the pool and can be reused. --\u003e\n\u003c!-- - Benefits: efficiency + no resource exhaustion. --\u003e\n\u003c!----\u003e\n\u003c!-- In Java, thread pools are represented by **`ExecutorService`**, with common implementations like: --\u003e\n\u003c!----\u003e\n\u003c!-- - `ThreadPoolExecutor` --\u003e\n\u003c!-- - `ScheduledThreadPoolExecutor` --\u003e\n\u003c!-- - `ForkJoinPool` --\u003e\n\u003c!----\u003e\n\u003c!-- --- --\u003e\n\u003c!----\u003e\n\u003c!-- ## 3. Example: Using Executors --\u003e\n\u003c!----\u003e\n\u003c!-- ### Blocking version (with try-with-resources) --\u003e\n\u003c!----\u003e\n\u003c!-- ```java --\u003e\n\u003c!-- public static void show() { --\u003e\n\u003c!--     // Java 21+: ExecutorService implements AutoCloseable --\u003e\n\u003c!--     try (var pool = Executors.newFixedThreadPool(2)) { --\u003e\n\u003c!--         pool.submit(() -\u003e { --\u003e\n\u003c!--             delay(); --\u003e\n\u003c!--             System.out.println(Thread.currentThread().getName()); --\u003e\n\u003c!--         }); --\u003e\n\u003c!--         System.out.println(\"hello\"); --\u003e\n\u003c!--     } // \u003c-- pool.close() waits for tasks to finish --\u003e\n\u003c!-- } --\u003e\n\u003c!-- ``` --\u003e\n\u003c!----\u003e\n\u003c!-- 🔎 **What happens here?** --\u003e\n\u003c!----\u003e\n\u003c!-- - `\"hello\"` prints immediately. --\u003e\n\u003c!-- - The submitted task runs on a worker thread. --\u003e\n\u003c!-- - When the `try` block ends, `pool.close()` is called, which **blocks** until tasks finish. --\u003e\n\u003c!----\u003e\n\u003c!-- That’s why `\"this is blocking\"` only shows _after_ the task completes. --\u003e\n\u003c!----\u003e\n\u003c!-- --- --\u003e\n\u003c!----\u003e\n\u003c!-- ### Non-blocking version (manual shutdown) --\u003e\n\u003c!----\u003e\n\u003c!-- ```java --\u003e\n\u003c!-- public static ExecutorService show2() { --\u003e\n\u003c!--     var pool = Executors.newFixedThreadPool(2); --\u003e\n\u003c!--     pool.submit(() -\u003e { --\u003e\n\u003c!--         delay(); --\u003e\n\u003c!--         System.out.println(Thread.currentThread().getName()); --\u003e\n\u003c!--     }); --\u003e\n\u003c!--     System.out.println(\"hello\"); --\u003e\n\u003c!--     return pool; // caller can decide when to shut it down --\u003e\n\u003c!-- } --\u003e\n\u003c!-- ``` --\u003e\n\u003c!----\u003e\n\u003c!-- Here: --\u003e\n\u003c!----\u003e\n\u003c!-- - `\"hello\"` prints immediately. --\u003e\n\u003c!-- - Program doesn’t block unless you later call `pool.shutdown()`. --\u003e\n\u003c!----\u003e\n\u003c!-- --- --\u003e\n\u003c!----\u003e\n\u003c!-- ## 4. Callable and Future --\u003e\n\u003c!----\u003e\n\u003c!-- Sometimes, we don’t just want to run tasks—we want a **result**. --\u003e\n\u003c!----\u003e\n\u003c!-- - `Runnable`: no result, just side effects. --\u003e\n\u003c!-- - `Callable\u003cT\u003e`: returns a value of type `T`. --\u003e\n\u003c!----\u003e\n\u003c!-- When we submit a `Callable`, we get back a **`Future\u003cT\u003e`** object. --\u003e\n\u003c!----\u003e\n\u003c!-- ```java --\u003e\n\u003c!-- public static Future\u003cInteger\u003e show3() { --\u003e\n\u003c!--     try (var pool = Executors.newFixedThreadPool(2)) { --\u003e\n\u003c!--         return pool.submit(() -\u003e { --\u003e\n\u003c!--             delay(); --\u003e\n\u003c!--             return 25; --\u003e\n\u003c!--         }); --\u003e\n\u003c!--     } --\u003e\n\u003c!-- } --\u003e\n\u003c!-- ``` --\u003e\n\u003c!----\u003e\n\u003c!-- ### Getting the result --\u003e\n\u003c!----\u003e\n\u003c!-- ```java --\u003e\n\u003c!-- var result = show3(); --\u003e\n\u003c!-- try { --\u003e\n\u003c!--     var value = result.get(); // blocks until task is finished --\u003e\n\u003c!--     System.out.println(value); --\u003e\n\u003c!-- } catch (InterruptedException | ExecutionException e) { --\u003e\n\u003c!--     throw new RuntimeException(e); --\u003e\n\u003c!-- } --\u003e\n\u003c!-- ``` --\u003e\n\u003c!----\u003e\n\u003c!-- ⚠️ `.get()` **blocks** the main thread until the task finishes. --\u003e\n\u003c!----\u003e\n\u003c!-- --- --\u003e\n\u003c!----\u003e\n\u003c!-- ## 5. Asynchronous Programming with `CompletableFuture` --\u003e\n\u003c!----\u003e\n\u003c!-- Futures are powerful but clunky (they only give you `.get()`). --\u003e\n\u003c!-- Java 8 introduced **`CompletableFuture`**, which lets you: --\u003e\n\u003c!----\u003e\n\u003c!-- - Run async tasks without blocking. --\u003e\n\u003c!-- - Chain multiple tasks (`thenApply`, `thenAccept`). --\u003e\n\u003c!-- - Handle errors. --\u003e\n\u003c!----\u003e\n\u003c!-- Example: --\u003e\n\u003c!----\u003e\n\u003c!-- ```java --\u003e\n\u003c!-- CompletableFuture.runAsync(() -\u003e { --\u003e\n\u003c!--     delay(); --\u003e\n\u003c!--     System.out.println(Thread.currentThread().getName()); --\u003e\n\u003c!-- }); --\u003e\n\u003c!-- System.out.println(\"hello\"); // prints immediately --\u003e\n\u003c!-- ``` --\u003e\n\u003c!----\u003e\n\u003c!-- --- --\u003e\n\u003c!----\u003e\n\u003c!-- ## 6. Summary --\u003e\n\u003c!----\u003e\n\u003c!-- - **Executors** = abstraction over threads. --\u003e\n\u003c!-- - **Thread pools** = efficient reuse of threads. --\u003e\n\u003c!-- - **Runnable** = no result, **Callable** = returns result. --\u003e\n\u003c!-- - **Future** = placeholder for a result (but blocks). --\u003e\n\u003c!-- - **CompletableFuture** = modern async style with chaining. --\u003e\n\u003c!----\u003e\n\u003c!-- --- --\u003e\n\u003c!----\u003e\n\u003c!-- ## ✅ Takeaway for students --\u003e\n\u003c!----\u003e\n\u003c!-- 1. Use **Executors** instead of raw threads. --\u003e\n\u003c!-- 2. Use **Callable + Future** when you need results. --\u003e\n\u003c!-- 3. Use **CompletableFuture** for non-blocking async programming. --\u003e\n\u003c!-- 4. Remember: --\u003e\n\u003c!--    - `ExecutorService.close()` blocks until tasks finish (Java 21+). --\u003e\n\u003c!--    - `.get()` on a `Future` blocks too. --\u003e\n\u003c!----\u003e\n\n\u003ch1\u003e\u003cstrong\u003eExecutorService\u003c/strong\u003e\u003c/h1\u003e\n\u003c!-- ## Table of Contents --\u003e\n\u003c!----\u003e\n\u003c!-- 1. [Introduction](#introduction) --\u003e\n\u003c!-- 2. [Thread Pools and ExecutorService](#thread-pools-and-executorservice) --\u003e\n\u003c!-- 3. [Callable and Future Interfaces](#callable-and-future-interfaces) --\u003e\n\u003c!-- 4. [Understanding Concurrency vs Parallelism vs Asynchronous](#understanding-concurrency-vs-parallelism-vs-asynchronous) --\u003e\n\u003c!-- 5. [CompletableFuture: Modern Asynchronous Programming](#completablefuture-modern-asynchronous-programming) --\u003e\n\u003c!-- 6. [Chaining Operations](#chaining-operations) --\u003e\n\u003c!-- 7. [Combining Futures](#combining-futures) --\u003e\n\u003c!-- 8. [Error Handling](#error-handling) --\u003e\n\u003c!-- 9. [Advanced Patterns](#advanced-patterns) --\u003e\n\u003c!-- 10. [Best Practices](#best-practices) --\u003e\n\n\u003ch2\u003eIntroduction\u003c/h2\u003e\n\u003cp\u003eWorking with threads directly in Java is difficult and error-prone. Java 5 introduced the \u003cstrong\u003eExecutor Framework\u003c/strong\u003e to abstract away the complexity of thread management. This lesson covers:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eThread pools and ExecutorService\u003c/li\u003e\n\u003cli\u003eCallable and Future interfaces\u003c/li\u003e\n\u003cli\u003eAsynchronous programming with CompletableFuture\u003c/li\u003e\n\u003cli\u003eModern patterns for concurrent programming\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch2\u003eThread Pools and ExecutorService\u003c/h2\u003e\n\u003ch3\u003eThe Problem with Direct Thread Usage\u003c/h3\u003e\n\u003cp\u003eCreating threads directly has two major issues:\u003c/p\u003e\n\u003col\u003e\n\u003cli\u003e\u003cstrong\u003eCost\u003c/strong\u003e: Creating and destroying threads is expensive\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eAvailability\u003c/strong\u003e: System resources are limited\u003c/li\u003e\n\u003c/ol\u003e\n\u003ch3\u003eSolution: Thread Pools\u003c/h3\u003e\n\u003cp\u003eA thread pool is a collection of worker threads. When a worker thread finishes its task, it returns to the pool to execute other tasks instead of being destroyed.\u003c/p\u003e\n\u003ch3\u003eExecutorService Basics\u003c/h3\u003e\n\u003cpre\u003e\u003ccode class=\"hljs language-java\"\u003e\u003cspan class=\"hljs-keyword\"\u003epublic\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003eclass\u003c/span\u003e \u003cspan class=\"hljs-title class_\"\u003eExecutorDemo\u003c/span\u003e {\n    \u003cspan class=\"hljs-keyword\"\u003epublic\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003estatic\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003evoid\u003c/span\u003e \u003cspan class=\"hljs-title function_\"\u003emain\u003c/span\u003e\u003cspan class=\"hljs-params\"\u003e(String[] args)\u003c/span\u003e {\n        \u003cspan class=\"hljs-comment\"\u003e// Basic executor usage\u003c/span\u003e\n        show();\n\n        \u003cspan class=\"hljs-comment\"\u003e// Non-blocking example\u003c/span\u003e\n        \u003cspan class=\"hljs-type\"\u003evar\u003c/span\u003e \u003cspan class=\"hljs-variable\"\u003eexec\u003c/span\u003e \u003cspan class=\"hljs-operator\"\u003e=\u003c/span\u003e show2();\n        System.out.println(\u003cspan class=\"hljs-string\"\u003e\u0026quot;this runs immediately\u0026quot;\u003c/span\u003e);\n        exec.shutdown();\n\n        \u003cspan class=\"hljs-comment\"\u003e// Working with return values\u003c/span\u003e\n        \u003cspan class=\"hljs-type\"\u003evar\u003c/span\u003e \u003cspan class=\"hljs-variable\"\u003eresult\u003c/span\u003e \u003cspan class=\"hljs-operator\"\u003e=\u003c/span\u003e show3();\n        \u003cspan class=\"hljs-keyword\"\u003etry\u003c/span\u003e {\n            \u003cspan class=\"hljs-type\"\u003evar\u003c/span\u003e \u003cspan class=\"hljs-variable\"\u003evalue\u003c/span\u003e \u003cspan class=\"hljs-operator\"\u003e=\u003c/span\u003e result.get();\n            System.out.println(value);\n        } \u003cspan class=\"hljs-keyword\"\u003ecatch\u003c/span\u003e (InterruptedException | ExecutionException e) {\n            \u003cspan class=\"hljs-keyword\"\u003ethrow\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003enew\u003c/span\u003e \u003cspan class=\"hljs-title class_\"\u003eRuntimeException\u003c/span\u003e(e);\n        }\n    }\n\n    \u003cspan class=\"hljs-comment\"\u003e// Blocking example with try-with-resources\u003c/span\u003e\n    \u003cspan class=\"hljs-keyword\"\u003epublic\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003estatic\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003evoid\u003c/span\u003e \u003cspan class=\"hljs-title function_\"\u003eshow\u003c/span\u003e\u003cspan class=\"hljs-params\"\u003e()\u003c/span\u003e {\n        \u003cspan class=\"hljs-keyword\"\u003etry\u003c/span\u003e (\u003cspan class=\"hljs-type\"\u003evar\u003c/span\u003e \u003cspan class=\"hljs-variable\"\u003epool\u003c/span\u003e \u003cspan class=\"hljs-operator\"\u003e=\u003c/span\u003e Executors.newFixedThreadPool(\u003cspan class=\"hljs-number\"\u003e2\u003c/span\u003e)) {\n            pool.submit(() -\u0026gt; {\n                delay();\n                System.out.println(Thread.currentThread().getName());\n            });\n            System.out.println(\u003cspan class=\"hljs-string\"\u003e\u0026quot;hello\u0026quot;\u003c/span\u003e);\n        } \u003cspan class=\"hljs-comment\"\u003e// pool.close() blocks until all tasks complete\u003c/span\u003e\n    }\n\n    \u003cspan class=\"hljs-comment\"\u003e// Non-blocking example\u003c/span\u003e\n    \u003cspan class=\"hljs-keyword\"\u003epublic\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003estatic\u003c/span\u003e ExecutorService \u003cspan class=\"hljs-title function_\"\u003eshow2\u003c/span\u003e\u003cspan class=\"hljs-params\"\u003e()\u003c/span\u003e {\n        \u003cspan class=\"hljs-type\"\u003evar\u003c/span\u003e \u003cspan class=\"hljs-variable\"\u003epool\u003c/span\u003e \u003cspan class=\"hljs-operator\"\u003e=\u003c/span\u003e Executors.newFixedThreadPool(\u003cspan class=\"hljs-number\"\u003e2\u003c/span\u003e);\n        pool.submit(() -\u0026gt; {\n            delay();\n            System.out.println(Thread.currentThread().getName());\n        });\n        System.out.println(\u003cspan class=\"hljs-string\"\u003e\u0026quot;hello\u0026quot;\u003c/span\u003e); \u003cspan class=\"hljs-comment\"\u003e// Prints immediately\u003c/span\u003e\n        \u003cspan class=\"hljs-keyword\"\u003ereturn\u003c/span\u003e pool; \u003cspan class=\"hljs-comment\"\u003e// Must manually shutdown later\u003c/span\u003e\n    }\n\n    \u003cspan class=\"hljs-comment\"\u003e// Returning values with Future\u003c/span\u003e\n    \u003cspan class=\"hljs-keyword\"\u003epublic\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003estatic\u003c/span\u003e Future\u0026lt;Integer\u0026gt; \u003cspan class=\"hljs-title function_\"\u003eshow3\u003c/span\u003e\u003cspan class=\"hljs-params\"\u003e()\u003c/span\u003e {\n        \u003cspan class=\"hljs-keyword\"\u003etry\u003c/span\u003e (\u003cspan class=\"hljs-type\"\u003evar\u003c/span\u003e \u003cspan class=\"hljs-variable\"\u003epool\u003c/span\u003e \u003cspan class=\"hljs-operator\"\u003e=\u003c/span\u003e Executors.newFixedThreadPool(\u003cspan class=\"hljs-number\"\u003e2\u003c/span\u003e)) {\n            \u003cspan class=\"hljs-keyword\"\u003ereturn\u003c/span\u003e pool.submit(() -\u0026gt; {\n                delay();\n                \u003cspan class=\"hljs-keyword\"\u003ereturn\u003c/span\u003e \u003cspan class=\"hljs-number\"\u003e25\u003c/span\u003e;\n            });\n        }\n    }\n\n    \u003cspan class=\"hljs-keyword\"\u003epublic\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003estatic\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003evoid\u003c/span\u003e \u003cspan class=\"hljs-title function_\"\u003edelay\u003c/span\u003e\u003cspan class=\"hljs-params\"\u003e()\u003c/span\u003e {\n        \u003cspan class=\"hljs-keyword\"\u003etry\u003c/span\u003e {\n            Thread.sleep(Duration.ofSeconds(\u003cspan class=\"hljs-number\"\u003e2\u003c/span\u003e));\n        } \u003cspan class=\"hljs-keyword\"\u003ecatch\u003c/span\u003e (InterruptedException e) {\n            \u003cspan class=\"hljs-keyword\"\u003ethrow\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003enew\u003c/span\u003e \u003cspan class=\"hljs-title class_\"\u003eRuntimeException\u003c/span\u003e(e);\n        }\n    }\n}\n\u003c/code\u003e\u003c/pre\u003e\u003ch3\u003eKey ExecutorService Implementations\u003c/h3\u003e\n\u003col\u003e\n\u003cli\u003e\u003cstrong\u003eThreadPoolExecutor\u003c/strong\u003e: General-purpose thread pool\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eScheduledThreadPoolExecutor\u003c/strong\u003e: For scheduled tasks\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eForkJoinPool\u003c/strong\u003e: For divide-and-conquer algorithms\u003c/li\u003e\n\u003c/ol\u003e\n\u003ch3\u003eImportant Note About try-with-resources\u003c/h3\u003e\n\u003cp\u003eWhen using \u003ccode\u003etry-with-resources\u003c/code\u003e with ExecutorService:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eThe \u003ccode\u003eclose()\u003c/code\u003e method calls \u003ccode\u003eshutdown()\u003c/code\u003e and \u003cstrong\u003eblocks\u003c/strong\u003e until all submitted tasks finish\u003c/li\u003e\n\u003cli\u003eThis can make your code appear synchronous even though tasks run on separate threads\u003c/li\u003e\n\u003cli\u003eFor truly non-blocking behavior, manage the executor lifecycle manually\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch2\u003eCallable and Future Interfaces\u003c/h2\u003e\n\u003ch3\u003eMoving Beyond Runnable\u003c/h3\u003e\n\u003cp\u003eWhile \u003ccode\u003eRunnable\u003c/code\u003e is great for fire-and-forget tasks, often you need to:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eReturn a value from your task\u003c/li\u003e\n\u003cli\u003eHandle exceptions properly\u003c/li\u003e\n\u003cli\u003eCheck if the task is complete\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch3\u003eCallable Interface\u003c/h3\u003e\n\u003cpre\u003e\u003ccode class=\"hljs language-java\"\u003e\u003cspan class=\"hljs-keyword\"\u003epublic\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003eclass\u003c/span\u003e \u003cspan class=\"hljs-title class_\"\u003eThreadPoolExample\u003c/span\u003e {\n    \u003cspan class=\"hljs-keyword\"\u003epublic\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003estatic\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003evoid\u003c/span\u003e \u003cspan class=\"hljs-title function_\"\u003emain\u003c/span\u003e\u003cspan class=\"hljs-params\"\u003e(String[] args)\u003c/span\u003e {\n        \u003cspan class=\"hljs-keyword\"\u003etry\u003c/span\u003e (\u003cspan class=\"hljs-type\"\u003evar\u003c/span\u003e \u003cspan class=\"hljs-variable\"\u003eexec\u003c/span\u003e \u003cspan class=\"hljs-operator\"\u003e=\u003c/span\u003e Executors.newFixedThreadPool(\u003cspan class=\"hljs-number\"\u003e2\u003c/span\u003e)) {\n            \u003cspan class=\"hljs-comment\"\u003e// Submit a Callable that returns a value\u003c/span\u003e\n            \u003cspan class=\"hljs-type\"\u003evar\u003c/span\u003e \u003cspan class=\"hljs-variable\"\u003eresult\u003c/span\u003e \u003cspan class=\"hljs-operator\"\u003e=\u003c/span\u003e exec.submit(() -\u0026gt; {\n                System.out.println(Thread.currentThread().getName());\n                LongTask.simulate();\n                \u003cspan class=\"hljs-keyword\"\u003ereturn\u003c/span\u003e \u003cspan class=\"hljs-number\"\u003e1\u003c/span\u003e; \u003cspan class=\"hljs-comment\"\u003e// Return value\u003c/span\u003e\n            });\n\n            \u003cspan class=\"hljs-keyword\"\u003etry\u003c/span\u003e {\n                \u003cspan class=\"hljs-comment\"\u003e// get() is a BLOCKING call\u003c/span\u003e\n                \u003cspan class=\"hljs-type\"\u003evar\u003c/span\u003e \u003cspan class=\"hljs-variable\"\u003eres\u003c/span\u003e \u003cspan class=\"hljs-operator\"\u003e=\u003c/span\u003e result.get();\n                System.out.println(res);\n            } \u003cspan class=\"hljs-keyword\"\u003ecatch\u003c/span\u003e (InterruptedException | ExecutionException e) {\n                \u003cspan class=\"hljs-keyword\"\u003ethrow\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003enew\u003c/span\u003e \u003cspan class=\"hljs-title class_\"\u003eRuntimeException\u003c/span\u003e(e);\n            }\n        }\n    }\n}\n\u003c/code\u003e\u003c/pre\u003e","markdown":"# **Concurrency in Java**\n\nConcurrency is one of the most important and tricky topics in Java.\nIt allows programs to perform multiple tasks at the same time, but introduces problems like **race conditions**, **visibility issues**, and **deadlocks** if not handled carefully.\n\n---\n\n## 1. Processes, Threads, and the JVM\n\n- **Process** = an instance of a running program.\n- **Thread** = a lightweight unit of execution inside a process.\n- Every Java program **starts with the main thread**.\n- JVM also runs background threads (like garbage collector).\n\n👉 To create new threads in Java:\n\n```java\nThread t = new Thread(() -\u003e {\n    System.out.println(\"Hello from a new thread!\");\n});\nt.start();\n```\n\n---\n\n## 2. Thread Lifecycle and APIs\n\nImportant methods:\n\n- `start()` → begins execution in a new thread.\n- `sleep(ms)` → pauses **current thread**.\n- `join()` → waits for another thread to finish.\n- `interrupt()` + `isInterrupted()` → cooperative thread termination.\n- `setDaemon(true)` → makes a background thread (JVM won’t wait for it).\n\n### Example:\n\n```java\nThread worker = new Thread(() -\u003e {\n    try {\n        Thread.sleep(3000);\n        System.out.println(\"Work done!\");\n    } catch (InterruptedException e) {\n        System.out.println(\"Interrupted!\");\n    }\n});\n\n// Non-daemon (JVM waits)\nworker.start();\n\n// Main waits explicitly\nworker.join();\n```\n\n---\n\n## 3. JVM Exit Behavior\n\n- JVM **keeps running** if there’s any **non-daemon thread** alive.\n- JVM **can exit immediately** if only **daemon threads** remain.\n- Use `join()` when you want explicit waiting.\n\n| Feature    | Non-Daemon (default) | Daemon      |\n| ---------- | -------------------- | ----------- |\n| JVM waits? | ✅ Yes               | ❌ No       |\n| Example    | Worker threads       | Logging, GC |\n\n---\n\n## 4. Concurrency Problems\n\n### 4.1 Race Conditions\n\nA **race condition** happens when multiple threads access and modify shared data simultaneously.\n\nExample:\n\n```java\nclass Counter {\n    int count = 0;\n    public void increment() { count++; }\n}\n```\n\nIf multiple threads call `increment()`, final result is unpredictable.\n\n---\n\n### 4.2 Fixing Race Conditions\n\n**Techniques:**\n\n1. **Confinement** → keep data thread-local.\n2. **Synchronization** → locks, `synchronized`.\n3. **Atomic classes** → `AtomicInteger`, `AtomicBoolean`, etc.\n4. **Immutable objects** → safe by design.\n\n---\n\n## 5. Locks and Synchronization\n\n### 5.1 Using `synchronized`\n\n```java\nclass Counter {\n    private int count = 0;\n    public synchronized void increment() {\n        count++;\n    }\n}\n```\n\n### 5.2 Using Explicit Locks\n\n```java\nimport java.util.concurrent.locks.Lock;\nimport java.util.concurrent.locks.ReentrantLock;\n\nclass Counter {\n    private int count = 0;\n    private Lock lock = new ReentrantLock();\n\n    public void increment() {\n        lock.lock();\n        try { count++; }\n        finally { lock.unlock(); }\n    }\n}\n```\n\n---\n\n## 6. Volatile and Visibility\n\nThreads can cache variables locally, leading to **visibility issues**.\n\n- Without `volatile`, one thread may not see another’s changes.\n- With `volatile`, all reads/writes go to **main memory**.\n\nExample:\n\n```java\nclass Flag {\n    private volatile boolean done = false;\n\n    public void work() {\n        while (!done) { } // busy wait\n    }\n\n    public void stop() {\n        done = true;\n    }\n}\n```\n\n⚠️ Note: `volatile` ensures **visibility**, but not **atomicity**.\n`x++` is still unsafe, even if `x` is volatile.\n\n---\n\n## 7. Atomic Classes\n\nJava provides classes in `java.util.concurrent.atomic` that ensure atomic updates:\n\n```java\nimport java.util.concurrent.atomic.AtomicInteger;\n\nclass AtomicCounter {\n    private AtomicInteger count = new AtomicInteger();\n\n    public void increment() {\n        count.incrementAndGet();\n    }\n\n    public int get() {\n        return count.get();\n    }\n}\n```\n\n✔ Uses CPU-level instructions (`Compare-And-Swap`) to guarantee atomicity without locks.\n\n---\n\n## 8. Thread Communication: `wait()` and `notify()`\n\nSometimes threads need to communicate.\n\n- `wait()` → makes a thread pause until notified.\n- `notify()` → wakes one waiting thread.\n- `notifyAll()` → wakes all waiting threads.\n\n⚠️ Must be used inside a `synchronized` block.\n\nExample:\n\n```java\nclass DownloadStatus {\n    private boolean done = false;\n\n    public synchronized void waitUntilDone() throws InterruptedException {\n        while (!done) {\n            wait(); // releases lock, waits\n        }\n    }\n\n    public synchronized void markDone() {\n        done = true;\n        notifyAll(); // wakes waiting threads\n    }\n}\n```\n\n---\n\n## 9. Collections in Concurrency\n\n- `Collections.synchronizedList()` → wraps a list with locks.\n- `ConcurrentHashMap`, `CopyOnWriteArrayList` → designed for concurrency, faster than synchronized wrappers.\n\nExample:\n\n```java\nvar list = Collections.synchronizedList(new ArrayList\u003c\u003e());\nlist.add(1);\n```\n\n---\n\n## 10. Executor Framework (Modern Approach)\n\nInstead of managing threads manually:\n\n```java\nimport java.util.concurrent.*;\n\nExecutorService executor = Executors.newFixedThreadPool(4);\n\nexecutor.submit(() -\u003e {\n    System.out.println(\"Task running\");\n});\n\nexecutor.shutdown();\n```\n\n---\n\n# ✅ Key Takeaways\n\n1. **Thread basics**: `start()`, `sleep()`, `join()`, `interrupt()`.\n2. **Daemon vs non-daemon**: JVM exit depends on them.\n3. **Concurrency problems**: Race conditions, visibility.\n4. **Solutions**:\n   - Confinement\n   - Synchronization\n   - Locks\n   - Atomic classes\n   - Immutability\n\n5. **Visibility problem** solved by `volatile`.\n6. **Thread coordination**: `wait()` / `notify()`.\n7. **Use concurrent collections** instead of manual sync.\n8. For real apps → prefer **Executors** over manual `Thread`.\n\n\u003c!-- # **Executors, Thread Pools, and Futures in Java** --\u003e\n\u003c!----\u003e\n\u003c!-- ## 1. Why Executors? --\u003e\n\u003c!----\u003e\n\u003c!-- Working directly with threads (`new Thread(...)`) is: --\u003e\n\u003c!----\u003e\n\u003c!-- - **Error-prone** (manual start/stop, synchronization issues). --\u003e\n\u003c!-- - **Expensive** (creating a new thread for every task costs memory and CPU). --\u003e\n\u003c!-- - **Hard to scale** (what if you need to run hundreds of small tasks?). --\u003e\n\u003c!----\u003e\n\u003c!-- 👉 To solve this, Java 5 introduced the **Executor Framework** to manage threads for us. --\u003e\n\u003c!----\u003e\n\u003c!-- --- --\u003e\n\u003c!----\u003e\n\u003c!-- ## 2. Thread Pools --\u003e\n\u003c!----\u003e\n\u003c!-- Instead of creating threads manually, we can use a **pool**: --\u003e\n\u003c!----\u003e\n\u003c!-- - A pool is a group of worker threads. --\u003e\n\u003c!-- - When a task finishes, the thread returns to the pool and can be reused. --\u003e\n\u003c!-- - Benefits: efficiency + no resource exhaustion. --\u003e\n\u003c!----\u003e\n\u003c!-- In Java, thread pools are represented by **`ExecutorService`**, with common implementations like: --\u003e\n\u003c!----\u003e\n\u003c!-- - `ThreadPoolExecutor` --\u003e\n\u003c!-- - `ScheduledThreadPoolExecutor` --\u003e\n\u003c!-- - `ForkJoinPool` --\u003e\n\u003c!----\u003e\n\u003c!-- --- --\u003e\n\u003c!----\u003e\n\u003c!-- ## 3. Example: Using Executors --\u003e\n\u003c!----\u003e\n\u003c!-- ### Blocking version (with try-with-resources) --\u003e\n\u003c!----\u003e\n\u003c!-- ```java --\u003e\n\u003c!-- public static void show() { --\u003e\n\u003c!--     // Java 21+: ExecutorService implements AutoCloseable --\u003e\n\u003c!--     try (var pool = Executors.newFixedThreadPool(2)) { --\u003e\n\u003c!--         pool.submit(() -\u003e { --\u003e\n\u003c!--             delay(); --\u003e\n\u003c!--             System.out.println(Thread.currentThread().getName()); --\u003e\n\u003c!--         }); --\u003e\n\u003c!--         System.out.println(\"hello\"); --\u003e\n\u003c!--     } // \u003c-- pool.close() waits for tasks to finish --\u003e\n\u003c!-- } --\u003e\n\u003c!-- ``` --\u003e\n\u003c!----\u003e\n\u003c!-- 🔎 **What happens here?** --\u003e\n\u003c!----\u003e\n\u003c!-- - `\"hello\"` prints immediately. --\u003e\n\u003c!-- - The submitted task runs on a worker thread. --\u003e\n\u003c!-- - When the `try` block ends, `pool.close()` is called, which **blocks** until tasks finish. --\u003e\n\u003c!----\u003e\n\u003c!-- That’s why `\"this is blocking\"` only shows _after_ the task completes. --\u003e\n\u003c!----\u003e\n\u003c!-- --- --\u003e\n\u003c!----\u003e\n\u003c!-- ### Non-blocking version (manual shutdown) --\u003e\n\u003c!----\u003e\n\u003c!-- ```java --\u003e\n\u003c!-- public static ExecutorService show2() { --\u003e\n\u003c!--     var pool = Executors.newFixedThreadPool(2); --\u003e\n\u003c!--     pool.submit(() -\u003e { --\u003e\n\u003c!--         delay(); --\u003e\n\u003c!--         System.out.println(Thread.currentThread().getName()); --\u003e\n\u003c!--     }); --\u003e\n\u003c!--     System.out.println(\"hello\"); --\u003e\n\u003c!--     return pool; // caller can decide when to shut it down --\u003e\n\u003c!-- } --\u003e\n\u003c!-- ``` --\u003e\n\u003c!----\u003e\n\u003c!-- Here: --\u003e\n\u003c!----\u003e\n\u003c!-- - `\"hello\"` prints immediately. --\u003e\n\u003c!-- - Program doesn’t block unless you later call `pool.shutdown()`. --\u003e\n\u003c!----\u003e\n\u003c!-- --- --\u003e\n\u003c!----\u003e\n\u003c!-- ## 4. Callable and Future --\u003e\n\u003c!----\u003e\n\u003c!-- Sometimes, we don’t just want to run tasks—we want a **result**. --\u003e\n\u003c!----\u003e\n\u003c!-- - `Runnable`: no result, just side effects. --\u003e\n\u003c!-- - `Callable\u003cT\u003e`: returns a value of type `T`. --\u003e\n\u003c!----\u003e\n\u003c!-- When we submit a `Callable`, we get back a **`Future\u003cT\u003e`** object. --\u003e\n\u003c!----\u003e\n\u003c!-- ```java --\u003e\n\u003c!-- public static Future\u003cInteger\u003e show3() { --\u003e\n\u003c!--     try (var pool = Executors.newFixedThreadPool(2)) { --\u003e\n\u003c!--         return pool.submit(() -\u003e { --\u003e\n\u003c!--             delay(); --\u003e\n\u003c!--             return 25; --\u003e\n\u003c!--         }); --\u003e\n\u003c!--     } --\u003e\n\u003c!-- } --\u003e\n\u003c!-- ``` --\u003e\n\u003c!----\u003e\n\u003c!-- ### Getting the result --\u003e\n\u003c!----\u003e\n\u003c!-- ```java --\u003e\n\u003c!-- var result = show3(); --\u003e\n\u003c!-- try { --\u003e\n\u003c!--     var value = result.get(); // blocks until task is finished --\u003e\n\u003c!--     System.out.println(value); --\u003e\n\u003c!-- } catch (InterruptedException | ExecutionException e) { --\u003e\n\u003c!--     throw new RuntimeException(e); --\u003e\n\u003c!-- } --\u003e\n\u003c!-- ``` --\u003e\n\u003c!----\u003e\n\u003c!-- ⚠️ `.get()` **blocks** the main thread until the task finishes. --\u003e\n\u003c!----\u003e\n\u003c!-- --- --\u003e\n\u003c!----\u003e\n\u003c!-- ## 5. Asynchronous Programming with `CompletableFuture` --\u003e\n\u003c!----\u003e\n\u003c!-- Futures are powerful but clunky (they only give you `.get()`). --\u003e\n\u003c!-- Java 8 introduced **`CompletableFuture`**, which lets you: --\u003e\n\u003c!----\u003e\n\u003c!-- - Run async tasks without blocking. --\u003e\n\u003c!-- - Chain multiple tasks (`thenApply`, `thenAccept`). --\u003e\n\u003c!-- - Handle errors. --\u003e\n\u003c!----\u003e\n\u003c!-- Example: --\u003e\n\u003c!----\u003e\n\u003c!-- ```java --\u003e\n\u003c!-- CompletableFuture.runAsync(() -\u003e { --\u003e\n\u003c!--     delay(); --\u003e\n\u003c!--     System.out.println(Thread.currentThread().getName()); --\u003e\n\u003c!-- }); --\u003e\n\u003c!-- System.out.println(\"hello\"); // prints immediately --\u003e\n\u003c!-- ``` --\u003e\n\u003c!----\u003e\n\u003c!-- --- --\u003e\n\u003c!----\u003e\n\u003c!-- ## 6. Summary --\u003e\n\u003c!----\u003e\n\u003c!-- - **Executors** = abstraction over threads. --\u003e\n\u003c!-- - **Thread pools** = efficient reuse of threads. --\u003e\n\u003c!-- - **Runnable** = no result, **Callable** = returns result. --\u003e\n\u003c!-- - **Future** = placeholder for a result (but blocks). --\u003e\n\u003c!-- - **CompletableFuture** = modern async style with chaining. --\u003e\n\u003c!----\u003e\n\u003c!-- --- --\u003e\n\u003c!----\u003e\n\u003c!-- ## ✅ Takeaway for students --\u003e\n\u003c!----\u003e\n\u003c!-- 1. Use **Executors** instead of raw threads. --\u003e\n\u003c!-- 2. Use **Callable + Future** when you need results. --\u003e\n\u003c!-- 3. Use **CompletableFuture** for non-blocking async programming. --\u003e\n\u003c!-- 4. Remember: --\u003e\n\u003c!--    - `ExecutorService.close()` blocks until tasks finish (Java 21+). --\u003e\n\u003c!--    - `.get()` on a `Future` blocks too. --\u003e\n\u003c!----\u003e\n\n# **ExecutorService**\n\n\u003c!-- ## Table of Contents --\u003e\n\u003c!----\u003e\n\u003c!-- 1. [Introduction](#introduction) --\u003e\n\u003c!-- 2. [Thread Pools and ExecutorService](#thread-pools-and-executorservice) --\u003e\n\u003c!-- 3. [Callable and Future Interfaces](#callable-and-future-interfaces) --\u003e\n\u003c!-- 4. [Understanding Concurrency vs Parallelism vs Asynchronous](#understanding-concurrency-vs-parallelism-vs-asynchronous) --\u003e\n\u003c!-- 5. [CompletableFuture: Modern Asynchronous Programming](#completablefuture-modern-asynchronous-programming) --\u003e\n\u003c!-- 6. [Chaining Operations](#chaining-operations) --\u003e\n\u003c!-- 7. [Combining Futures](#combining-futures) --\u003e\n\u003c!-- 8. [Error Handling](#error-handling) --\u003e\n\u003c!-- 9. [Advanced Patterns](#advanced-patterns) --\u003e\n\u003c!-- 10. [Best Practices](#best-practices) --\u003e\n\n## Introduction\n\nWorking with threads directly in Java is difficult and error-prone. Java 5 introduced the **Executor Framework** to abstract away the complexity of thread management. This lesson covers:\n\n- Thread pools and ExecutorService\n- Callable and Future interfaces\n- Asynchronous programming with CompletableFuture\n- Modern patterns for concurrent programming\n\n## Thread Pools and ExecutorService\n\n### The Problem with Direct Thread Usage\n\nCreating threads directly has two major issues:\n\n1. **Cost**: Creating and destroying threads is expensive\n2. **Availability**: System resources are limited\n\n### Solution: Thread Pools\n\nA thread pool is a collection of worker threads. When a worker thread finishes its task, it returns to the pool to execute other tasks instead of being destroyed.\n\n### ExecutorService Basics\n\n```java\npublic class ExecutorDemo {\n    public static void main(String[] args) {\n        // Basic executor usage\n        show();\n\n        // Non-blocking example\n        var exec = show2();\n        System.out.println(\"this runs immediately\");\n        exec.shutdown();\n\n        // Working with return values\n        var result = show3();\n        try {\n            var value = result.get();\n            System.out.println(value);\n        } catch (InterruptedException | ExecutionException e) {\n            throw new RuntimeException(e);\n        }\n    }\n\n    // Blocking example with try-with-resources\n    public static void show() {\n        try (var pool = Executors.newFixedThreadPool(2)) {\n            pool.submit(() -\u003e {\n                delay();\n                System.out.println(Thread.currentThread().getName());\n            });\n            System.out.println(\"hello\");\n        } // pool.close() blocks until all tasks complete\n    }\n\n    // Non-blocking example\n    public static ExecutorService show2() {\n        var pool = Executors.newFixedThreadPool(2);\n        pool.submit(() -\u003e {\n            delay();\n            System.out.println(Thread.currentThread().getName());\n        });\n        System.out.println(\"hello\"); // Prints immediately\n        return pool; // Must manually shutdown later\n    }\n\n    // Returning values with Future\n    public static Future\u003cInteger\u003e show3() {\n        try (var pool = Executors.newFixedThreadPool(2)) {\n            return pool.submit(() -\u003e {\n                delay();\n                return 25;\n            });\n        }\n    }\n\n    public static void delay() {\n        try {\n            Thread.sleep(Duration.ofSeconds(2));\n        } catch (InterruptedException e) {\n            throw new RuntimeException(e);\n        }\n    }\n}\n```\n\n### Key ExecutorService Implementations\n\n1. **ThreadPoolExecutor**: General-purpose thread pool\n2. **ScheduledThreadPoolExecutor**: For scheduled tasks\n3. **ForkJoinPool**: For divide-and-conquer algorithms\n\n### Important Note About try-with-resources\n\nWhen using `try-with-resources` with ExecutorService:\n\n- The `close()` method calls `shutdown()` and **blocks** until all submitted tasks finish\n- This can make your code appear synchronous even though tasks run on separate threads\n- For truly non-blocking behavior, manage the executor lifecycle manually\n\n## Callable and Future Interfaces\n\n### Moving Beyond Runnable\n\nWhile `Runnable` is great for fire-and-forget tasks, often you need to:\n\n- Return a value from your task\n- Handle exceptions properly\n- Check if the task is complete\n\n### Callable Interface\n\n```java\npublic class ThreadPoolExample {\n    public static void main(String[] args) {\n        try (var exec = Executors.newFixedThreadPool(2)) {\n            // Submit a Callable that returns a value\n            var result = exec.submit(() -\u003e {\n                System.out.println(Thread.currentThread().getName());\n                LongTask.simulate();\n                return 1; // Return value\n            });\n\n            try {\n                // get() is a BLOCKING call\n                var res = result.get();\n                System.out.println(res);\n            } catch (InterruptedException | ExecutionException e) {\n                throw new RuntimeException(e);\n            }\n        }\n    }\n}\n```\n","slug":"Threads and concurrent Programming","title":"Threads and Concurrent Programming","section":"A Quick Refresher","icon":"rotate","filePath":"/home/runner/work/complete-intro-to-spring-and-springBoot/complete-intro-to-spring-and-springBoot/lessons/00-A quick Refresher/F-Threads and concurrent Programming.md","nextSlug":"/complete-intro-to-spring-and-springBoot/lessons/A quick Refresher/Async java","prevSlug":"/complete-intro-to-spring-and-springBoot/lessons/A quick Refresher/Functional programming"}},"__N_SSG":true},"page":"/lessons/[section]/[slug]","query":{"section":"A quick Refresher","slug":"Threads and concurrent Programming"},"buildId":"xTwxhuCtUf2QTtgk5CpXn","assetPrefix":"/complete-intro-to-spring-and-springBoot","isFallback":false,"gsp":true,"scriptLoader":[]}</script></body></html>
