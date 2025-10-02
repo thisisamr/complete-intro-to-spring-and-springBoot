@@ -1,4 +1,4 @@
-## A-1: Variables in Java
+# _Variables in Java_
 
 Variables are containers for storing data. In Java, you must **declare** a variable with a type before using it.
 
@@ -30,7 +30,7 @@ public class Variables {
 
 ---
 
-## A-2: Primitive Types vs Reference Types
+## Primitive Types vs Reference Types
 
 Java variables fall into **two categories**:
 
@@ -65,7 +65,7 @@ public class PrimitiveTypes {
 
 ---
 
-## A-3: Strings
+## Strings
 
 Strings are **reference types** and **immutable**. Reassigning creates a new object.
 
@@ -102,7 +102,7 @@ public class Strings {
 
 ---
 
-## A-4: Arrays
+## Arrays
 
 Arrays store multiple values of the same type.
 
@@ -138,7 +138,7 @@ public class ArraysDemo {
 
 ---
 
-## A-5: Constants & `final`
+## Constants & `final`
 
 Use `final` to declare **constants** that cannot change.
 
@@ -160,7 +160,7 @@ public class Constants {
 
 ---
 
-## A-6: Arithmetic Expressions
+## Arithmetic Expressions
 
 ```java
 public class Arithmetic {
@@ -187,7 +187,7 @@ public class Arithmetic {
 
 ---
 
-## A-7: Casting
+## Casting
 
 Java performs **implicit** and **explicit** type conversions.
 
@@ -226,7 +226,7 @@ public class Casting {
 
 ---
 
-## A-8: Exercise 🏋️ Mortgage Calculator
+## Exercise 🏋️ Mortgage Calculator
 
 Design a **mortgage calculator** using variables, arithmetic, and casting.
 
@@ -270,5 +270,188 @@ public class MortgageCalculator {
     }
 }
 ```
+
+---
+
+## Comparison & Logical Operators
+
+Java supports:
+
+- Equality: `==`, `!=`
+- Greater/less than: `<`, `>`, `<=`, `>=`
+- Logical AND: `&&`
+- Logical OR: `||`
+- Negation: `!`
+
+👉 Example:
+
+```java
+int age = 20;
+double temp = 36.5;
+
+boolean isOk = temp > 20 && temp < 40; // true
+boolean isHot = temp > 40 || age < 18; // false
+```
+
+These are building blocks for **conditions and control flow**.
+
+---
+
+## If Statements & Ternary Operators
+
+We often decide program flow based on conditions.
+
+```java
+public static String advice(double temp) {
+    if (temp > 30) return "It's hot today!";
+    if (temp >= 15) return "The weather is fine.";
+    return "It's too cold!";
+}
+```
+
+The same logic with a **ternary operator** (short form):
+
+```java
+public static String advice(float temp) {
+    return (temp > 30 ? "Hot" : (temp < 15 ? "Freezing" : "Fine"));
+}
+```
+
+---
+
+## Loops
+
+Loops repeat code until a condition is met.
+
+### For Loop
+
+```java
+for (int i = 0; i < 5; i++) {
+    System.out.println("Hello!");
+}
+```
+
+### While Loop
+
+```java
+int i = 3;
+while (i > 0) {
+    System.out.println(i);
+    i--;
+}
+```
+
+### Do-While Loop
+
+Runs at least once:
+
+```java
+int i = 0;
+do {
+    System.out.println("Runs once even if false");
+} while (i > 0);
+```
+
+---
+
+## Switch Statements
+
+Switches are good for **multi-branch decisions**.
+
+⚠️ **Important**: In Java, `switch` falls through unless you add `break`.
+
+```java
+String[] roles = {"admin","guest","owner"};
+for (String r : roles) {
+    switch (r) {
+        case "admin":
+            System.out.println("You are an admin.");
+            break;
+        case "guest":
+            System.out.println("Don't touch my stuff.");
+            break;
+        default:
+            System.out.println("Welcome, owner!");
+            break;
+    }
+}
+```
+
+---
+
+## User Input
+
+We can read input from the console with `Scanner`.
+
+```java
+Scanner scanner = new Scanner(System.in);
+String input;
+while (true) {
+    System.out.print("Enter something (quit to stop): ");
+    input = scanner.next().toLowerCase();
+
+    if (input.equals("pass")) continue;
+    if (input.equals("quit")) break;
+
+    System.out.println("You typed: " + input);
+}
+```
+
+---
+
+## 🏋️ <span style="color:blue;">Exercise</span>: FizzBuzz
+
+Write a method:
+
+- If divisible by 3 → print `"Fizz"`
+- If divisible by 5 → print `"Buzz"`
+- If divisible by both → print `"FizzBuzz"`
+- Otherwise → print the number
+
+---
+
+## 💰 <span style="color:blue;">Project</span>: Mortgage Calculator
+
+lets add some error handeling to the mortgage calculator
+the principal should be between 1k and 1 million $ if the user enter an invalid number
+keep asking him to enter a valid amount.
+
+Formula:
+
+$$
+M = P \times \frac{r(1+r)^n}{(1+r)^n - 1}
+$$
+
+Where:
+
+- `M` = monthly payment
+- `P` = loan principal
+- `r` = monthly interest rate (annual ÷ 12 ÷ 100)
+- `n` = total months (years × 12)
+
+With validation (loop until valid input):
+
+```java
+Scanner input = new Scanner(System.in);
+double principal;
+while (true) {
+    System.out.print("Principal (1000 - 1,000,000): ");
+    principal = input.nextDouble();
+    if (principal >= 1000 && principal <= 1_000_000) break;
+    System.out.println("Invalid principal. Try again.");
+}
+```
+
+Then calculate & print the monthly payment. ✅
+
+---
+
+# 📝 Wrap-up
+
+- Use **operators** for conditions
+- Control flow with `if/else`, `switch`, `ternary`
+- Repeat with `for`, `while`, `do-while`
+- Gather **user input** with validation
+- Apply it in a **mini project (Mortgage Calculator)**
 
 ---
