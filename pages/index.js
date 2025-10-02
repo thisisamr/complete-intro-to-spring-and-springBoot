@@ -27,7 +27,6 @@ export default function Lessons({ sections }) {
           <div className="courseInfo">
             <div className="courseInfo-inner">
               <h1>{courseInfo.title}</h1>
-              <h2>{courseInfo.subtitle}</h2>
               <div className="author">
                 <div className="image">
                   <img
@@ -38,7 +37,7 @@ export default function Lessons({ sections }) {
                 </div>
                 <div className="info">
                   <div className="name">{courseInfo.author.name}</div>
-                  <div className="company">{courseInfo.author.company}</div>
+                  <div className="company">{courseInfo.subtitle}</div>
                 </div>
               </div>
             </div>
