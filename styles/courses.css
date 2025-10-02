@@ -4,6 +4,9 @@
 html {
   font-size: 16px;
 }
+h2 {
+  color: var(--subheaders);
+}
 
 body,
 h1,
@@ -242,14 +245,14 @@ header .cta-btn {
   margin-bottom: 10px;
 }
 
-.lesson h2::after {
-  content: "";
-  display: block;
-  height: 3px;
-  margin-top: 5px;
-  background: var(--text-header);
-  max-width: 300px;
-}
+/* .lesson h2::after { */
+/*   content: ""; */
+/*   display: block; */
+/*   height: 3px; */
+/*   margin-top: 5px; */
+/*   background: var(--text-header); */
+/*   max-width: 300px; */
+/* } */
 
 .lesson p {
   clear: both;

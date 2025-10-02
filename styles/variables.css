@@ -2,7 +2,7 @@
   --primary: #dfa067;
   --secondary: #e5fffa;
   --highlight: #224159;
-
+  --subheaders: #49c296;
   --lesson-text: rgb(8, 8, 8);
 
   --text-header: var(--primary);
@@ -32,7 +32,7 @@
   --secondary: #39af97;
   --highlight: #ffffff;
   --icons: #424449;
-
+  --subheaders: #0f8dd9;
   --text-header: var(--primary);
   --text-main-headers: var(--highlight);
   --text-links: #c5bcbc;
